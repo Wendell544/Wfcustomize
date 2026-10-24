@@ -33,3 +33,18 @@ Abra o `index.html` no navegador, ou rode `python3 -m http.server` na pasta e ac
 - Não tem painel com login: a edição é feita no `js/config.js`.
 - Não guarda pedidos: eles existem só na conversa do WhatsApp.
 - A logo que aparece nas camisetas é um exemplo; a arte do cliente vem pelo WhatsApp.
+
+## Realismo do SVG — como funciona
+Cores sem foto usam a camiseta desenhada em 11 camadas fixas: sombra de contato, silhueta, luz principal, oclusão nas axilas e no decote, 6 dobras, textura de malha (só no corpo), ribana canelada, costuras, etiqueta (costas), logo e vinheta. Nada é aleatório. O desenho de cada cor/lado fica em cache (20 itens) e muda no tema escuro (sombra e luz mais fortes). Para ver a diferença, compare Preta e Branca.
+
+## Posição da logo e calibração
+`PRODUTO.ancoras` (em `js/config.js`) guarda a posição da logo em frações da camisa (não da imagem), então vale para a ilustração e para qualquer foto. Nas fotos, o site acha a camisa sozinho (fundo liso) e, se não conseguir, usa a foto inteira. Para calibrar: abra a prévia, ajuste `cx`/`cy` (centro) e `w`/`h` (tamanho) em passos de 0,01, salve e recarregue. O calibrador com arraste ainda não foi implementado.
+
+## Cortador de fundo — quando funciona e quando recusa
+SVG e PNG/WebP com transparência entram direto. JPEG, WebP e PNG opaco passam pelo cortador (roda em Worker): ele lê a cor das bordas, remove o fundo uniforme (branco, cinza, cor lisa, sombra suave) e suaviza a borda sem halo. Se a borda não tiver um fundo dominante, ou se menos de 45% da imagem for fundo, ele recusa e mantém a imagem original com o aviso "use PNG ou SVG com fundo transparente".
+
+## Testes de validação (rode após cada atualização)
+- iPhone SE (DevTools): enviar JPEG de 1,5 MB; a página não pode mexer nem dar zoom.
+- Logos: PNG transparente, SVG, JPEG com fundo branco (corta) e JPEG com foto de fundo (recusa).
+- Trocar Preta e Branca, tema claro e escuro, e conferir carrinho, checkout e mensagem do WhatsApp.
+- Lighthouse (Performance, Acessibilidade) e Memory (50 uploads seguidos).
