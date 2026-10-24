@@ -13,18 +13,20 @@
 <meta name="twitter:description" content="Camisetas 100% algodão no atacado. Pedido pelo WhatsApp.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"WFCUSTOM","contactPoint":{"@type":"ContactPoint","telephone":"+55-83-99966-7578","contactType":"sales","availableLanguage":"pt-BR"}},{"@type":"Product","name":"Camiseta básica 100% algodão","description":"Camiseta básica 100% algodão no atacado, em 18 cores, com opção de logo.","brand":{"@type":"Brand","name":"WFCUSTOM"},"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":"22.00","highPrice":"36.00","offerCount":"3","availability":"https://schema.org/InStock"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"WFCUSTOM","sameAs":["https://www.instagram.com/wfcustomm/"],"contactPoint":{"@type":"ContactPoint","telephone":"+55-83-99966-7578","contactType":"sales","availableLanguage":"pt-BR"}},{"@type":"Product","name":"Camiseta básica 100% algodão","description":"Camiseta básica 100% algodão no atacado, em 18 cores, com opção de logo.","brand":{"@type":"Brand","name":"WFCUSTOM"},"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":"22.00","highPrice":"36.00","offerCount":"3","availability":"https://schema.org/InStock"}}]}</script>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <header><div class="w hd">
 <a class="brand" href="#inicio" aria-label="WFCUSTOM – início"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9333ea"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs><path d="M11 3c1 2.3 3 3.2 5 3.2S20 5.3 21 3l7 3.5 2.5 6-4.5 2V29H7V14.5l-4.5-2 2.5-6z" fill="url(#lg)"/></svg><span><b>WF</b>CUSTOM</span></a>
-<nav aria-label="Principal"><a href="#inicio" data-nav="inicio">Pedido</a><a href="#carrinho" data-nav="carrinho" aria-label="Carrinho">Carrinho <span class="badge" id="cnt">0</span></a></nav>
+<nav aria-label="Principal"><a href="#inicio" data-nav="inicio">Pedido</a><a href="#carrinho" data-nav="carrinho" aria-label="Carrinho">Carrinho <span class="badge" id="cnt">0</span></a><button class="menu-btn" id="menuBtn" type="button" data-act="menu" aria-label="Abrir menu de informações" aria-expanded="false" aria-controls="drawer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button></nav>
 </div></header>
 <main id="app"><noscript><p class="nojs">Ative o JavaScript para montar o pedido ou fale direto pelo WhatsApp: (83) 99966-7578.</p></noscript></main>
-<footer><div class="w"><div><b>WFCUSTOM</b> · Camisetas no atacado<br>WhatsApp (83) 99966-7578</div><div><a href="#entregas">Entregas</a> · <a href="#privacidade">Privacidade</a></div></div></footer>
+<footer><div class="w"><div id="fi"></div><div id="fl"></div></div></footer>
 <div id="mbar"><div><b id="mb1"></b><div class="mut sm" id="mb2"></div></div><a class="btn sm" href="#carrinho">Ver carrinho</a></div>
 <a class="fab" id="fab" target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.600 15.100L2 22l5-1.300A10 10 0 1 0 12 2zm5.200 14.200c-.2.600-1.300 1.200-1.800 1.200-.5.100-1 .2-3.300-.7-2.800-1.200-4.600-4-4.700-4.200-.1-.2-1.100-1.500-1.100-2.800 0-1.300.7-1.900.9-2.200.2-.3.500-.3.700-.3h.5c.2 0 .4 0 .6.500l.9 2.100c.1.200.1.400 0 .5l-.4.600c-.1.200-.3.300-.1.600.2.300.8 1.300 1.700 2.100 1.200 1 2.100 1.300 2.400 1.500.3.100.4.100.6-.1l.8-1c.2-.3.400-.2.600-.1l2 1c.3.100.5.200.5.300.1.200.1.800-.1 1.400z"/></svg></a>
+<div id="scrim" data-act="menux"></div>
+<aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Menu de informações" aria-hidden="true"></aside>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Foto ampliada"><button data-act="lbx" aria-label="Fechar">×</button><img id="lbi" alt=""></div>
 

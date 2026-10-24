@@ -56,12 +56,12 @@ return `<div class="hero"><div class="blob b1"></div><div class="blob b2"></div>
 <section class="rv" id="monte"><div class="w"><div class="cfg"><div class="gal"><div class="stage"><div class="main-img-wrap" id="pv"></div>${P.fotos.length?`<div class="thumbs">${P.fotos.map((f,i)=>`<button type="button" data-act="thumb" data-i="${i}" aria-label="Ampliar foto ${i+1}"><img loading="lazy" decoding="async" src="${esc(f)}" alt="${esc(P.nome)}, foto ${i+1}"></button>`).join("")}</div>`:""}</div></div>
 <div class="panel"><h2 style="margin-bottom:var(--s5)">${esc(P.nome)}</h2>
 <fieldset><legend><span class="n">1</span>Cor<em id="cn"></em></legend><div class="sw">${P.cores.map(x=>`<button type="button" data-act="cor" data-v="${esc(x.nome)}" aria-pressed="${x.nome===sel.cor}"><i style="background:${x.hex}"></i>${esc(x.nome)}</button>`).join("")}</div></fieldset>
-<fieldset><legend><span class="n">2</span>Tamanho</legend>${seg("tam",P.tamanhos)}</fieldset>
+<fieldset><legend><span class="n">2</span>Tamanho</legend>${seg("tam",P.tamanhos)}<p class="meas" id="meas" aria-live="polite"></p></fieldset>
 <fieldset><legend><span class="n">3</span>Modelo</legend>${seg("gen",P.generos)}</fieldset>
 <fieldset><legend><span class="n">4</span>Personalização</legend><div class="opts">${P.personalizacoes.map(x=>`<div class="opt"><input type="radio" name="pers" id="p_${x.id}" value="${x.id}" ${x.id===sel.pers?"checked":""}><label for="p_${x.id}"><span>${esc(x.nome)}<span class="d">${esc(x.desc)}</span></span><b>${brl(x.preco)}</b></label></div>`).join("")}</div></fieldset>
 <fieldset><legend><span class="n">5</span>Quantidade</legend><div class="qty"><button type="button" data-act="qd" data-d="-1" aria-label="Diminuir quantidade">−</button><input id="pq" type="number" min="1" inputmode="numeric" value="${sel.q}" aria-label="Quantidade"><button type="button" data-act="qd" data-d="1" aria-label="Aumentar quantidade">+</button></div></fieldset>
 <div class="buy"><div class="p" id="pp"></div><button class="btn" id="add" data-act="add">Adicionar ao pedido</button></div>
-<div class="res" id="rs" aria-live="polite"></div></div></div></div></section>`}
+<div class="res" id="rs" aria-live="polite"></div></div></div></div></section>${medidasHtml()}`}
 function paintPreview(){const c=cor(sel.cor),w=$("#pv");if(!w)return;$("#cn").textContent=c.nome;
  const im=(src,alt,cap,real)=>`<figure><img ${real?'class="real" ':""}decoding="async" src="${src}" alt="${esc(alt)}" width="400" height="440">${cap?`<figcaption>${cap}</figcaption>`:""}</figure>`;
  if(c.foto)w.innerHTML=im(c.foto,`Camiseta ${c.nome}, foto real`,"",true);
@@ -82,7 +82,7 @@ const viewPriv=()=>`<section><div class="w page"><h2 style="margin-bottom:var(--
 function route(){const h=location.hash.slice(1)||"inicio",a=$("#app");
  a.innerHTML=h==="carrinho"?viewCart():h==="checkout"?viewCheckout():h==="entregas"?viewInfo():h==="privacidade"?viewPriv():viewHome();
  const cur=h==="carrinho"||h==="checkout"?"carrinho":(h==="entregas"||h==="privacidade")?"":"inicio";$$("[data-nav]").forEach(n=>n.dataset.nav===cur?n.setAttribute("aria-current","page"):n.removeAttribute("aria-current"));
- if(!["carrinho","checkout","entregas","privacidade"].includes(h)){paintPreview();paintPrice();paintSummary()}window.scrollTo(0,0);barPaint();reveal()}
+ if(!["carrinho","checkout","entregas","privacidade"].includes(h)){paintPreview();paintPrice();paintSummary();paintMeas()}window.scrollTo(0,0);if(pend){const e=document.getElementById(pend);pend=null;e&&e.scrollIntoView({behavior:"auto"})}barPaint();reveal()}
 
 /* ===== VALIDAÇÃO / WHATSAPP ===== */
 const maskTel=v=>{v=v.replace(/\D/g,"").slice(0,11);return v.length>10?`(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`:v.length>6?`(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`:v.length>2?`(${v.slice(0,2)}) ${v.slice(2)}`:v};
@@ -97,9 +97,24 @@ function msg(v){const L=["*NOVO PEDIDO – "+CONFIG.nome+"*","","*DADOS DO CLIEN
  if(cart.some(i=>i.pers!=="nenhuma"))L.push("","*LOGO*","Vou enviar a logo por aqui.");
  L.push("","*OBSERVAÇÕES*",v.obs||"-","","Olá! Gostaria de confirmar a disponibilidade dos produtos, o valor do frete e as condições de pagamento deste pedido.");return L.join("\n")}
 
+/* ===== MEDIDAS / MENU ===== */
+const IG=()=>String(CONFIG.instagram).replace(/^@/,""),IGURL=()=>`https://www.instagram.com/${IG()}/`;
+const fmtTel=n=>{const d=String(n).replace(/\D/g,"").replace(/^55/,"");return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d};
+const medidasHtml=()=>`<section class="rv" id="medidas"><div class="w"><div class="sechd"><div class="kicker">Tamanhos</div><h2>Tabela de medidas (cm)</h2><p>Tamanhos disponíveis: ${P.tamanhos.map(esc).join(" · ")}.</p></div><div class="tbl-wrap" role="region" aria-label="Tabela de medidas em centímetros" tabindex="0"><table class="tbl"><thead><tr><th scope="col">Tamanho</th>${MEDIDAS.colunas.map(c=>`<th scope="col">${esc(c)}</th>`).join("")}</tr></thead><tbody>${MEDIDAS.linhas.map(r=>`<tr data-tam="${esc(r.tam)}"><th scope="row">${esc(r.tam)}</th>${r.v.map(v=>`<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div><p class="mut sm" style="margin-top:var(--s3)">*${esc(MEDIDAS.nota)}</p></div></section>`;
+function paintMeas(){const m=$("#meas"),r=MEDIDAS.linhas.find(x=>x.tam===sel.tam);
+ if(m)m.innerHTML=r?`<b>${esc(r.tam)}</b> · ${MEDIDAS.colunas.map((c,i)=>`${esc(c)} ${esc(r.v[i])}`).join(" · ")} cm · <button type="button" class="lnk" data-act="goto" data-t="medidas">tabela completa</button>`:"";
+ $$("#medidas tbody tr").forEach(tr=>tr.classList.toggle("sel",tr.dataset.tam===sel.tam))}
+const IC={ig:'<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/>',shirt:'<path d="M8 3 3 6l2 4 3-1v12h8V9l3 1 2-4-5-3c-1 2-2 3-4 3S9 5 8 3z"/>',tag:'<path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1"/>',ruler:'<path d="M3 16 16 3l5 5L8 21z"/><path d="M7.5 12.5l2 2M10.5 9.5l2 2M13.5 6.5l2 2"/>',truck:'<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>'};
+function buildDrawer(){const ic=k=>`<svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>`,go=(k,t,l)=>`<li><button type="button" data-act="goto" data-t="${t}">${ic(k)}${l}</button></li>`;
+ $("#drawer").innerHTML=`<div class="dh"><span class="brand"><span><b>WF</b>CUSTOM</span></span><button class="x" type="button" data-act="menux" aria-label="Fechar menu">×</button></div><ul class="dl"><li><a href="${IGURL()}" target="_blank" rel="noopener">${ic("ig")}Instagram<small>@${esc(IG())}</small></a></li>${go("shirt","monte","Montar pedido")}${go("tag","valores","Valores")}${go("ruler","medidas","Tabela de medidas")}<li><a href="#entregas">${ic("truck")}Entregas</a></li><li><a href="#privacidade">${ic("shield")}Privacidade</a></li><li><a href="${wa("Olá! Vim pelo site e gostaria de falar sobre as camisetas no atacado.")}" target="_blank" rel="noopener">${ic("chat")}Fale conosco<small>WhatsApp</small></a></li></ul><div class="di"><b>${esc(CONFIG.nome)}</b><br>Camisetas no atacado · mínimo ${P.min} peças<br>WhatsApp ${fmtTel(CONFIG.whats)}</div>`}
+let lastF=null,pend=null;
+function openMenu(){lastF=document.activeElement;$("#drawer").classList.add("on");$("#scrim").classList.add("on");$("#drawer").setAttribute("aria-hidden","false");$("#menuBtn").setAttribute("aria-expanded","true");document.documentElement.classList.add("lock");$("#drawer .x").focus()}
+function closeMenu(){const d=$("#drawer");if(!d.classList.contains("on"))return;d.classList.remove("on");$("#scrim").classList.remove("on");d.setAttribute("aria-hidden","true");$("#menuBtn").setAttribute("aria-expanded","false");document.documentElement.classList.remove("lock");lastF&&lastF.focus&&lastF.focus({preventScroll:true})}
+function gotoSec(id){if(IS_HOME()){const e=document.getElementById(id);e&&e.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}else{pend=id;location.hash="inicio"}}
+
 /* ===== EVENTOS (delegação) ===== */
 document.addEventListener("click",e=>{const t=e.target.closest("[data-act]");if(!t)return;const a=t.dataset.act,i=+t.dataset.i,d=+t.dataset.d;
- if(a==="cor"||a==="tam"||a==="gen"){sel[a]=t.dataset.v;$$(`[data-act="${a}"]`).forEach(b=>b.setAttribute("aria-pressed",b===t));paintPreview()}
+ if(a==="cor"||a==="tam"||a==="gen"){sel[a]=t.dataset.v;$$(`[data-act="${a}"]`).forEach(b=>b.setAttribute("aria-pressed",b===t));paintPreview();paintMeas()}
  else if(a==="qd"){const q=$("#pq");sel.q=Math.min(9999,Math.max(1,(parseInt(q.value)||0)+d));q.value=sel.q;paintPrice()}
  else if(a==="add"){const n=Math.min(9999,parseInt($("#pq").value)||0);if(n<1)return;const k=cart.find(x=>x.cor===sel.cor&&x.tam===sel.tam&&x.gen===sel.gen&&x.pers===sel.pers);k?k.q+=n:cart.push({cor:sel.cor,tam:sel.tam,gen:sel.gen,pers:sel.pers,q:n});save(true);paintSummary();toast(`${n}× ${sel.cor} ${sel.tam} adicionada${n>1?"s":""} ao pedido`);t.classList.remove("bounce");void t.offsetWidth;t.classList.add("bounce")}
  else if(a==="cd"){cart[i].q=Math.min(9999,Math.max(1,cart[i].q+d));save();route()}
@@ -108,8 +123,13 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-act]");if(
  else if(a==="scroll")$("#monte").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"});
  else if(a==="thumb"){$("#lbi").src=P.fotos[i];$("#lbi").alt=P.nome+", foto "+(i+1);$("#lb").classList.add("on");$("#lb button").focus()}
  else if(a==="pickpers"){sel.pers=t.dataset.v;const r=$("#p_"+sel.pers);if(r)r.checked=true;paintPreview();paintPrice();$("#monte").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}
- else if(a==="lbx")$("#lb").classList.remove("on")});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#lb").classList.remove("on")});
+ else if(a==="lbx")$("#lb").classList.remove("on")
+ else if(a==="goto")gotoSec(t.dataset.t)
+ else if(a==="menu")openMenu()
+ else if(a==="menux")closeMenu()});
+document.addEventListener("click",e=>{if(e.target.closest("#drawer a,#drawer [data-act='goto']"))closeMenu()},true);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("#lb").classList.remove("on");closeMenu()}
+ if(e.key==="Tab"&&$("#drawer").classList.contains("on")){const f=$$("#drawer a,#drawer button"),x=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===x){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();x.focus()}}});
 document.addEventListener("click",e=>{if(e.target.id==="lb")$("#lb").classList.remove("on")});
 document.addEventListener("change",e=>{const t=e.target;if(t.name==="pers"){sel.pers=t.value;paintPreview();paintPrice()}else if(t.dataset.ci!==undefined){cart[+t.dataset.ci].q=Math.min(9999,Math.max(1,parseInt(t.value)||1));save();route()}});
 document.addEventListener("input",e=>{const t=e.target;if(t.id==="pq"){sel.q=parseInt(t.value)||0;paintPrice()}else if(t.id==="f_tel")t.value=maskTel(t.value);else if(t.id==="f_cep")t.value=maskCep(t.value);else if(t.id==="f_uf")t.value=t.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,2)});
@@ -121,4 +141,7 @@ document.addEventListener("submit",e=>{if(e.target.id!=="ck")return;e.preventDef
 /* ===== INIT ===== */
 let rq=0;addEventListener("scroll",()=>{if(rq)return;rq=requestAnimationFrame(()=>{rq=0;$$(".rv:not(.in)").forEach(e=>{if(e.getBoundingClientRect().top<innerHeight)e.classList.add("in")})})},{passive:true});
 $("#fab").href=wa("Olá! Vim pelo site e gostaria de falar sobre as camisetas no atacado.");
+buildDrawer();
+$("#fi").innerHTML=`<b>${esc(CONFIG.nome)}</b> · Camisetas no atacado<br>WhatsApp ${fmtTel(CONFIG.whats)}`;
+$("#fl").innerHTML=`<a href="#entregas">Entregas</a> · <a href="#privacidade">Privacidade</a> · <a href="${IGURL()}" target="_blank" rel="noopener">Instagram @${esc(IG())}</a>`;
 window.addEventListener("hashchange",route);save();route();

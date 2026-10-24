@@ -1,5 +1,5 @@
 /* ===== CONFIG ===== */
-const CONFIG={nome:"WFCUSTOM",whats:"5583999667578",frete:null /* null = "Frete a combinar"; ou número, ex.: 25 */};
+const CONFIG={nome:"WFCUSTOM",whats:"5583999667578",instagram:"wfcustomm" /* usuário do Instagram, sem @ */,frete:null /* null = "Frete a combinar"; ou número, ex.: 25 */};
 const PRODUTO={
  id:"CAM-001",nome:"Camiseta básica 100% algodão",min:30,
  tamanhos:["P","M","G"],generos:["Masculina","Feminina"],
@@ -17,4 +17,11 @@ const PRODUTO={
   {nome:"Amarela",hex:"#f2b705",foto:""},{nome:"Vermelha",hex:"#d3122a",foto:""},{nome:"Vinho",hex:"#6e1830",foto:""},{nome:"Rosa",hex:"#f08fb5",foto:""},
   {nome:"Lilás",hex:"#c9b6e4",foto:""},{nome:"Azul bebê",hex:"#9fc3e8",foto:""},{nome:"Azul royal",hex:"#1f3fd1",foto:""},{nome:"Azul marinho",hex:"#16213f",foto:""},
   {nome:"Verde bandeira",hex:"#1d5a3a",foto:""},{nome:"Verde militar",hex:"#5a5a3a",foto:""}]
+};
+
+/* Tabela de medidas em cm (aparece no site e no menu). Para mudar, edite os números. */
+const MEDIDAS={
+ colunas:["Peito","Comprimento","Ombros","Manga"],
+ linhas:[{tam:"P",v:["52","69","38","14"]},{tam:"M",v:["53","72","40","16,5"]},{tam:"G",v:["55","74","44","18"]}],
+ nota:"Medidas aproximadas. Pode haver variação de até 2 cm."
 };

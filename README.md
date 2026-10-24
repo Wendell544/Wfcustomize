@@ -16,6 +16,8 @@ Site estático (HTML, CSS e JavaScript puros). Não precisa de servidor nem de i
 ## Editar preços e regras (`js/config.js`)
 - Preços por peça em `personalizacoes`: sem logo R$ 22, logo na frente R$ 30, frente e costas R$ 36.
 - Pedido mínimo: `min: 30` (soma de todas as cores, tamanhos e modelos).
+- Instagram: `instagram` (usuário sem @, hoje `wfcustomm`). Aparece no menu dos 3 pontinhos, no rodapé e no SEO.
+- Tabela de medidas: bloco `MEDIDAS` (números em cm; aparece no site e no menu).
 - WhatsApp: `whats` (55 + DDD + número). Frete: `frete: null` mostra "Frete a combinar".
 - Depois de mudar preços, atualize também `lowPrice`/`highPrice` no bloco JSON-LD do `index.html` (só afeta o Google).
 
