@@ -22,8 +22,9 @@ function reveal(){const els=$$(".rv:not(.in)");if(!("IntersectionObserver" in wi
 function openWa(u){const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2400)}
 
-/* ===== ILUSTRAÇÃO (SVG 3D realista) ===== */
+/* ===== ILUSTRAÇÃO (SVG 3D realista, cores fiéis) ===== */
 const shade=(hex,f)=>{const n=parseInt(hex.slice(1),16),c=v=>Math.max(0,Math.min(255,Math.round(v*f))).toString(16).padStart(2,"0");return"#"+c(n>>16)+c(n>>8&255)+c(n&255)};
+const lighten=(hex,amt)=>{const n=parseInt(hex.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;const nr=Math.round(r+(255-r)*amt),ng=Math.round(g+(255-g)*amt),nb=Math.round(b+(255-b)*amt);return"#"+((1<<24)+(nr<<16)+(ng<<8)+nb).toString(16).slice(1)};
 const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==="dark":matchMedia("(prefers-color-scheme:dark)").matches};
 const SVG_BOX={x:8,y:44,w:384,h:348};
 const SVG_CACHE=new Map();
@@ -34,57 +35,55 @@ const ancBox=(a,b)=>({x:r1(b.x+(a.cx-a.w/2)*b.w),y:r1(b.y+(a.cy-a.h/2)*b.h),w:r1
 function shirt(hex,side,logo,up){
  const f=side==="f",dk=isDark(),useUp=!!(logo&&up&&LOGO),mx=!!(P.opcoes&&P.opcoes.realismoMaximo),key=[hex,side,logo?1:0,dk?1:0,mx?1:0].join("|");
  if(!useUp&&SVG_CACHE.has(key)){const v=SVG_CACHE.get(key);SVG_CACHE.delete(key);SVG_CACHE.set(key,v);return v}
- const light=lum(hex)>.45,oc=light?shade(hex,.72):shade(hex,1.55);
+ const light=lum(hex)>.42;
+ /* Sombreado pela MESMA cor (não por preto empilhado) — mantém a cor fiel */
+ const shCol=shade(hex,.65),midCol=shade(hex,.85);
+ const hlCol=lighten(hex,light?.10:.35);
+ const aoCol=shade(hex,.50);
+ const shOp=0.50,midOp=0.25,hlOp=light?.25:.40,aoOp=light?.30:.25,neckOp=light?.40:.55;
  const body="M148 44C165 54 235 54 252 44L326 70C340 74 348 80 354 90L392 160C394 166 392 170 387 172L338 196C333 198 329 196 327 192L310 164V372C310 384 302 392 290 392H110C98 392 90 384 90 372V164L73 192C71 196 67 198 62 196L13 172C8 170 6 166 8 160L46 90C52 80 60 74 74 70Z";
  const lower=[[150,45],[168,108],[232,108],[250,45]],upper=[[150,45],[172,66],[228,66],[250,45]],back=[[150,45],[172,74],[228,74],[250,45]];
  const emblem=(x,y,w,h,r,fs)=>`<g opacity=".95"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#lg)"/><rect x="${r1(x+w*.06)}" y="${r1(y+h*.08)}" width="${r1(w*.88)}" height="${r1(h*.84)}" rx="${r1(r*.7)}" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="${w>80?2:1}"/><text x="${r1(x+w/2)}" y="${r1(y+h/2+fs*.36)}" font-size="${fs}" font-weight="800" text-anchor="middle" fill="#fff" font-family="Inter,Arial,sans-serif" letter-spacing="1">LOGO</text></g>`;
  const a=P.ancoras[f?"peito":"costas"],bx=ancBox(a,SVG_BOX),cx=r1(bx.x+bx.w/2),cy=r1(bx.y+bx.h/2);
  const lg=!logo?"":`<g transform="rotate(${a.rot||0} ${cx} ${cy})${mx?" matrix(1 0 -.02 1 0 2)":""}">`+(useUp?`<image href="${LOGO}" x="${bx.x}" y="${bx.y}" width="${bx.w}" height="${bx.h}" preserveAspectRatio="xMidYMid meet"/>`:emblem(bx.x,bx.y,bx.w,bx.h,f?6:10,f?12:27))+"</g>";
  const nk=pd(upper)+"C232 108 168 108 150 45Z";
- const neckhole=f?`<path d="${nk}" fill="#000" opacity=".34"/>`:"";
- const cc=pd(f?lower:back),cw=f?16:14;
- const col=(f?`<path d="${pd(upper)}" fill="none" stroke="${oc}" stroke-width="6" stroke-linecap="round" opacity=".6"/>`:"")
-  +`<path d="${cc}" fill="none" stroke="#000" stroke-width="${cw+4}" stroke-linecap="round" opacity=".10"/>`
-  +`<path d="${cc}" fill="none" stroke="${oc}" stroke-width="${cw}" stroke-linecap="round"/>`
-  +`<path d="${cc}" fill="none" stroke="${hex}" stroke-width="${cw-3}" stroke-linecap="round"/>`
-  +`<path d="${cc}" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".35" transform="translate(0 1)"/>`;
+ const neckhole=f?`<path d="${nk}" fill="#000" opacity="${neckOp}"/>`:"";
+ const cc=pd(f?lower:back),cw=f?15:13;
+ /* gola: mesma cor, borda escura fina + rim claro */
+ const col=`<path d="${cc}" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="${cw+4}" stroke-linecap="round"/>`
+  +`<path d="${cc}" fill="none" stroke="${shCol}" stroke-width="${cw}" stroke-linecap="round"/>`
+  +`<path d="${cc}" fill="none" stroke="${hex}" stroke-width="${cw-5}" stroke-linecap="round"/>`
+  +`<path d="${cc}" fill="none" stroke="#fff" stroke-opacity=".20" stroke-width="1" stroke-linecap="round" transform="translate(0 -2)"/>`;
  const sc=light?"#000":"#fff";
- const st=`<g fill="none" stroke="${sc}" stroke-linecap="round" stroke-opacity=".14" stroke-width="1"><path d="M95 378H305M381 163L333 186M19 163L67 186"/><path d="M322 76C318 112 313 140 307 164M78 76C82 112 87 140 93 164" stroke-dasharray="2 4"/></g>`;
- const etq=f?"":`<rect x="185" y="76" width="30" height="14" rx="2" fill="#f0f0f0" opacity=".9"/>`;
+ const st=`<g fill="none" stroke="${sc}" stroke-linecap="round" stroke-opacity=".10" stroke-width="1"><path d="M95 378H305M381 163L333 186M19 163L67 186"/></g>`;
+ const etq=f?"":`<rect x="185" y="76" width="30" height="14" rx="2" fill="#f0f0f0" opacity=".85"/>`;
  const defs=`<defs>
-  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9333ea"/><stop offset="1" stop-color="#ec4899"/></linearGradient>
-  <linearGradient id="bodyV" x1="0" y1="0" x2="1" y2="0">
-   <stop offset="0" stop-color="#000" stop-opacity="${dk?0.42:0.30}"/>
-   <stop offset="0.12" stop-color="#000" stop-opacity="${dk?0.14:0.08}"/>
-   <stop offset="0.30" stop-color="#fff" stop-opacity="${dk?0.06:0.12}"/>
-   <stop offset="0.50" stop-color="#fff" stop-opacity="${dk?0.08:0.14}"/>
-   <stop offset="0.72" stop-color="#000" stop-opacity="${dk?0.12:0.08}"/>
-   <stop offset="0.88" stop-color="#000" stop-opacity="${dk?0.22:0.16}"/>
-   <stop offset="1" stop-color="#000" stop-opacity="${dk?0.46:0.34}"/></linearGradient>
-  <linearGradient id="bodyU" x1="0" y1="0" x2="0" y2="1">
-   <stop offset="0" stop-color="#fff" stop-opacity="${dk?0.10:0.14}"/>
-   <stop offset="0.35" stop-color="#000" stop-opacity="0"/>
-   <stop offset="0.80" stop-color="#000" stop-opacity=".10"/>
-   <stop offset="1" stop-color="#000" stop-opacity=".26"/></linearGradient>
-  <radialGradient id="ax" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity="${dk?0.34:0.24}"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-  <radialGradient id="ad" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity="${dk?0.50:0.40}"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-  <radialGradient id="al" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".18"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-  <radialGradient id="sh" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity="${dk?0.10:0.22}"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-  <radialGradient id="fs" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".18"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-  <filter id="bm" x="-20%" y="-150%" width="140%" height="400%"><feGaussianBlur stdDeviation="5"/></filter>
+  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+   <stop offset="0" stop-color="#9333ea"/><stop offset="1" stop-color="#ec4899"/>
+  </linearGradient>
+  <linearGradient id="cyl" x1="0" y1="0" x2="1" y2="0">
+   <stop offset="0" stop-color="${shCol}" stop-opacity="${shOp}"/>
+   <stop offset="0.12" stop-color="${midCol}" stop-opacity="${midOp}"/>
+   <stop offset="0.30" stop-color="${hlCol}" stop-opacity="${hlOp*.4}"/>
+   <stop offset="0.50" stop-color="${hlCol}" stop-opacity="${hlOp}"/>
+   <stop offset="0.70" stop-color="${hlCol}" stop-opacity="${hlOp*.4}"/>
+   <stop offset="0.88" stop-color="${midCol}" stop-opacity="${midOp}"/>
+   <stop offset="1" stop-color="${shCol}" stop-opacity="${shOp}"/>
+  </linearGradient>
+  <linearGradient id="vtc" x1="0" y1="0" x2="0" y2="1">
+   <stop offset="0" stop-color="${shCol}" stop-opacity="0"/>
+   <stop offset="0.75" stop-color="${shCol}" stop-opacity="0"/>
+   <stop offset="1" stop-color="${shCol}" stop-opacity="${shOp*.35}"/>
+  </linearGradient>
+  <radialGradient id="ao" cx="50%" cy="50%" r="50%">
+   <stop offset="0" stop-color="${aoCol}" stop-opacity="${aoOp}"/>
+   <stop offset="1" stop-color="${aoCol}" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="bm" x="-20%" y="-150%" width="140%" height="400%"><feGaussianBlur stdDeviation="6"/></filter>
   <clipPath id="c"><path d="${body}"/></clipPath></defs>`;
- const ao=`
-  <ellipse cx="98" cy="185" rx="72" ry="100" fill="url(#ax)"/>
-  <ellipse cx="302" cy="185" rx="72" ry="100" fill="url(#ax)"/>
-  <ellipse cx="200" cy="72" rx="60" ry="38" fill="url(#ad)"/>
-  <ellipse cx="200" cy="60" rx="42" ry="22" fill="url(#ad)"/>
-  <ellipse cx="94" cy="320" rx="38" ry="62" fill="url(#al)"/>
-  <ellipse cx="306" cy="320" rx="38" ry="62" fill="url(#al)"/>
-  <ellipse cx="168" cy="135" rx="90" ry="75" fill="url(#sh)"/>
-  <ellipse cx="240" cy="220" rx="60" ry="100" fill="url(#sh)" opacity=".55"/>
-  <ellipse cx="140" cy="260" rx="28" ry="90" fill="url(#fs)" opacity=".35"/>
-  <ellipse cx="260" cy="260" rx="28" ry="90" fill="url(#fs)" opacity=".35"/>`;
- const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420">${defs}<ellipse cx="200" cy="400" rx="145" ry="8" fill="#000" opacity="${dk?0.5:0.28}" filter="url(#bm)"/><path d="${body}" fill="${hex}"/><g clip-path="url(#c)">${neckhole}<rect width="400" height="420" fill="url(#bodyV)"/><rect width="400" height="420" fill="url(#bodyU)"/>${ao}</g><path d="${body}" fill="none" stroke="#000" stroke-opacity=".20" stroke-width="1.5"/>${col}${st}${etq}${lg}</svg>`;
+ /* pequenas sombras nas axilas e sob a gola — não mancham o meio */
+ const ao=`<ellipse cx="106" cy="205" rx="26" ry="55" fill="url(#ao)"/><ellipse cx="294" cy="205" rx="26" ry="55" fill="url(#ao)"/><ellipse cx="200" cy="70" rx="40" ry="12" fill="url(#ao)"/>`;
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420">${defs}<ellipse cx="200" cy="398" rx="150" ry="7" fill="#000" opacity="${dk?.45:.22}" filter="url(#bm)"/><path d="${body}" fill="${hex}"/><g clip-path="url(#c)">${neckhole}<rect width="400" height="420" fill="url(#cyl)"/><rect width="400" height="420" fill="url(#vtc)"/>${ao}</g><path d="${body}" fill="none" stroke="${shCol}" stroke-opacity=".35" stroke-width="1.2"/>${col}${st}${etq}${lg}</svg>`;
  const uri="data:image/svg+xml,"+encodeURIComponent(svg);
  if(!useUp){SVG_CACHE.set(key,uri);if(SVG_CACHE.size>20)SVG_CACHE.delete(SVG_CACHE.keys().next().value)}
  return uri}
