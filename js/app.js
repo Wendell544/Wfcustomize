@@ -1,11 +1,3 @@
-/* ===== AUDITORIA (v7) — inventário antes da refatoração =====
- 1. shirt(): 1 silhueta + 3 gradientes + trama em X + 7 dobras escritas à mão (nenhuma aleatória) + gola. Agora: 11 camadas fixas.
- 2. Campos de texto: #pq, .qty input, .fld input/textarea e #logo-file. Todos com 16px (iOS não dá zoom).
- 3. canvas: antes em hasAlpha()/cutBackground(); agora em bboxFor() e prepararLogo(). Todos criados fora do DOM e zerados após o uso.
- 4. paintPreview() é chamado em: route(), cor/tam/gen, pickpers, change[name=pers], handleLogoFile() e logoRemove().
- 5. Timers: toast (tt), rAF do scroll (rq) e debounce do upload (dbT). Nenhum setInterval.
- 6. Listeners: todos delegados em document (não acumulam); o de scroll é {passive:true}.
-*/
 /* ===== HELPERS ===== */
 document.documentElement.classList.add("js");
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -14,7 +6,6 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const P=PRODUTO,pers=id=>P.personalizacoes.find(x=>x.id===id),cor=n=>P.cores.find(c=>c.nome===n);
 const lum=h=>{const n=parseInt(h.slice(1),16),f=v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4};return .2126*f(n>>16)+.7152*f(n>>8&255)+.0722*f(n&255)};
 const wa=t=>`https://wa.me/${CONFIG.whats}${t?"?text="+encodeURIComponent(t):""}`;
-/* funções puras de cálculo */
 const nq=c=>c.reduce((a,i)=>a+i.q,0),unit=i=>pers(i.pers).preco,sub=i=>i.q*unit(i),total=c=>c.reduce((a,i)=>a+sub(i),0),faltam=c=>Math.max(0,P.min-nq(c));
 const fmtFrete=()=>CONFIG.frete==null?"Frete a combinar":brl(CONFIG.frete);
 const desc=i=>`${i.cor} · ${i.tam} · ${i.gen} · ${pers(i.pers).nome}`;
@@ -31,52 +22,72 @@ function reveal(){const els=$$(".rv:not(.in)");if(!("IntersectionObserver" in wi
 function openWa(u){const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2400)}
 
-/* ===== ILUSTRAÇÃO (SVG realista, 11 camadas) ===== */
-/*SHIRT-START*/
-/* Mockup SVG de reserva: cor fiel e volume suave, sem ruído, listras ou costuras tracejadas. */
-const shade=(hex,f)=>{const n=parseInt(hex.slice(1),16),c=v=>Math.max(0,Math.min(255,Math.round(v*f+((f>1&&v<12)?(f-1)*24:0)))).toString(16).padStart(2,"0");return"#"+c(n>>16)+c(n>>8&255)+c(n&255)};
-const SVG_BOX={x:8,y:43,w:384,h:350};
+/* ===== ILUSTRAÇÃO (SVG 3D realista) ===== */
+const shade=(hex,f)=>{const n=parseInt(hex.slice(1),16),c=v=>Math.max(0,Math.min(255,Math.round(v*f))).toString(16).padStart(2,"0");return"#"+c(n>>16)+c(n>>8&255)+c(n&255)};
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==="dark":matchMedia("(prefers-color-scheme:dark)").matches};
+const SVG_BOX={x:8,y:44,w:384,h:348};
 const SVG_CACHE=new Map();
 const r1=n=>Math.round(n*10)/10;
+const pd=p=>`M${p[0]}C${p[1]} ${p[2]} ${p[3]}`;
 const ancBox=(a,b)=>({x:r1(b.x+(a.cx-a.w/2)*b.w),y:r1(b.y+(a.cy-a.h/2)*b.h),w:r1(a.w*b.w),h:r1(a.h*b.h)});
+
 function shirt(hex,side,logo,up){
- const f=side==="f",useUp=!!(logo&&up&&LOGO),mx=!!(P.opcoes&&P.opcoes.realismoMaximo),key=[hex,side,logo?1:0,mx?1:0].join("|");
+ const f=side==="f",dk=isDark(),useUp=!!(logo&&up&&LOGO),mx=!!(P.opcoes&&P.opcoes.realismoMaximo),key=[hex,side,logo?1:0,dk?1:0,mx?1:0].join("|");
  if(!useUp&&SVG_CACHE.has(key)){const v=SVG_CACHE.get(key);SVG_CACHE.delete(key);SVG_CACHE.set(key,v);return v}
- const light=lum(hex)>.47;
- const hi=shade(hex,light?1.035:1.48),mid=shade(hex,light?.97:1.12),edge=shade(hex,light?.88:.70),deep=shade(hex,light?.78:.48);
- const body="M148 43C166 53 234 53 252 43L323 68C337 72 346 82 353 94L390 157C394 164 392 169 387 172L337 196C332 198 328 195 325 190L309 161V371C309 384 300 393 288 393H112C100 393 91 384 91 371V161L75 190C72 195 68 198 63 196L13 172C8 169 6 164 10 157L47 94C54 82 63 72 77 68Z";
- const neck=f
-  ?"M151 44C165 69 235 69 249 44C241 61 159 61 151 44Z"
-  :"M150 44C165 61 235 61 250 44C242 55 158 55 150 44Z";
- const collar=f
-  ?"M145 44C161 72 239 72 255 44L250 46C235 67 165 67 150 46Z"
-  :"M146 44C163 64 237 64 254 44L250 46C234 60 166 60 150 46Z";
+ const light=lum(hex)>.45,oc=light?shade(hex,.72):shade(hex,1.55);
+ const body="M148 44C165 54 235 54 252 44L326 70C340 74 348 80 354 90L392 160C394 166 392 170 387 172L338 196C333 198 329 196 327 192L310 164V372C310 384 302 392 290 392H110C98 392 90 384 90 372V164L73 192C71 196 67 198 62 196L13 172C8 170 6 166 8 160L46 90C52 80 60 74 74 70Z";
+ const lower=[[150,45],[168,108],[232,108],[250,45]],upper=[[150,45],[172,66],[228,66],[250,45]],back=[[150,45],[172,74],[228,74],[250,45]];
+ const emblem=(x,y,w,h,r,fs)=>`<g opacity=".95"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#lg)"/><rect x="${r1(x+w*.06)}" y="${r1(y+h*.08)}" width="${r1(w*.88)}" height="${r1(h*.84)}" rx="${r1(r*.7)}" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="${w>80?2:1}"/><text x="${r1(x+w/2)}" y="${r1(y+h/2+fs*.36)}" font-size="${fs}" font-weight="800" text-anchor="middle" fill="#fff" font-family="Inter,Arial,sans-serif" letter-spacing="1">LOGO</text></g>`;
  const a=P.ancoras[f?"peito":"costas"],bx=ancBox(a,SVG_BOX),cx=r1(bx.x+bx.w/2),cy=r1(bx.y+bx.h/2);
- const emblem=(x,y,w,h,front)=>{
-   const color=lum(hex)>.48?"#222222":"#ffffff",fs=front?Math.max(6.5,Math.min(10,w*.16)):Math.max(12,Math.min(24,w*.15));
-   return `<text x="${r1(x+w/2)}" y="${r1(y+h/2+fs*.34)}" font-size="${r1(fs)}" font-weight="700" text-anchor="middle" fill="${color}" font-family="Inter,Arial,sans-serif" letter-spacing=".1" opacity=".88">SUA LOGO</text>`;
- };
- const lg=!logo?"":`<g transform="rotate(${a.rot||0} ${cx} ${cy})${mx?" matrix(1 0 -.02 1 0 2)":""}">`+(useUp?`<image href="${LOGO}" x="${bx.x}" y="${bx.y}" width="${bx.w}" height="${bx.h}" preserveAspectRatio="xMidYMid meet"/>`:emblem(bx.x,bx.y,bx.w,bx.h,f))+"</g>";
+ const lg=!logo?"":`<g transform="rotate(${a.rot||0} ${cx} ${cy})${mx?" matrix(1 0 -.02 1 0 2)":""}">`+(useUp?`<image href="${LOGO}" x="${bx.x}" y="${bx.y}" width="${bx.w}" height="${bx.h}" preserveAspectRatio="xMidYMid meet"/>`:emblem(bx.x,bx.y,bx.w,bx.h,f?6:10,f?12:27))+"</g>";
+ const nk=pd(upper)+"C232 108 168 108 150 45Z";
+ const neckhole=f?`<path d="${nk}" fill="#000" opacity=".34"/>`:"";
+ const cc=pd(f?lower:back),cw=f?16:14;
+ const col=(f?`<path d="${pd(upper)}" fill="none" stroke="${oc}" stroke-width="6" stroke-linecap="round" opacity=".6"/>`:"")
+  +`<path d="${cc}" fill="none" stroke="#000" stroke-width="${cw+4}" stroke-linecap="round" opacity=".10"/>`
+  +`<path d="${cc}" fill="none" stroke="${oc}" stroke-width="${cw}" stroke-linecap="round"/>`
+  +`<path d="${cc}" fill="none" stroke="${hex}" stroke-width="${cw-3}" stroke-linecap="round"/>`
+  +`<path d="${cc}" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".35" transform="translate(0 1)"/>`;
+ const sc=light?"#000":"#fff";
+ const st=`<g fill="none" stroke="${sc}" stroke-linecap="round" stroke-opacity=".14" stroke-width="1"><path d="M95 378H305M381 163L333 186M19 163L67 186"/><path d="M322 76C318 112 313 140 307 164M78 76C82 112 87 140 93 164" stroke-dasharray="2 4"/></g>`;
+ const etq=f?"":`<rect x="185" y="76" width="30" height="14" rx="2" fill="#f0f0f0" opacity=".9"/>`;
  const defs=`<defs>
- <linearGradient id="fabricX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${edge}"/><stop offset=".13" stop-color="${mid}"/><stop offset=".32" stop-color="${hi}"/><stop offset=".50" stop-color="${hex}"/><stop offset=".72" stop-color="${mid}"/><stop offset="1" stop-color="${edge}"/></linearGradient>
- <linearGradient id="fabricY" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hi}"/><stop offset=".18" stop-color="${hex}"/><stop offset=".66" stop-color="${hex}"/><stop offset="1" stop-color="${deep}"/></linearGradient>
- <radialGradient id="shoulderLight" cx="45%" cy="18%" r="62%"><stop offset="0" stop-color="${hi}" stop-opacity=".48"/><stop offset="1" stop-color="${hex}" stop-opacity="0"/></radialGradient>
- <radialGradient id="sideShade"><stop offset="0" stop-color="${deep}" stop-opacity=".18"/><stop offset="1" stop-color="${hex}" stop-opacity="0"/></radialGradient>
- <linearGradient id="neckShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${deep}"/><stop offset="1" stop-color="${edge}"/></linearGradient>
- <filter id="softShadow" x="-20%" y="-180%" width="140%" height="460%"><feGaussianBlur stdDeviation="5"/></filter>
- <clipPath id="shirtClip"><path d="${body}"/></clipPath></defs>`;
- const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420">${defs}
- <ellipse cx="200" cy="399" rx="134" ry="8" fill="#000" opacity=".16" filter="url(#softShadow)"/>
- <path d="${body}" fill="url(#fabricX)"/>
- <path d="${body}" fill="url(#fabricY)" opacity=".30"/>
- <g clip-path="url(#shirtClip)"><ellipse cx="190" cy="122" rx="156" ry="132" fill="url(#shoulderLight)"/><ellipse cx="91" cy="226" rx="78" ry="172" fill="url(#sideShade)"/><ellipse cx="309" cy="226" rx="78" ry="172" fill="url(#sideShade)"/></g>
- <path d="${neck}" fill="url(#neckShade)" opacity=".94"/><path d="${collar}" fill="${light?shade(hex,.90):shade(hex,1.10)}" opacity=".92"/>
- ${lg}
- </svg>`;
+  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9333ea"/><stop offset="1" stop-color="#ec4899"/></linearGradient>
+  <linearGradient id="bodyV" x1="0" y1="0" x2="1" y2="0">
+   <stop offset="0" stop-color="#000" stop-opacity="${dk?0.42:0.30}"/>
+   <stop offset="0.12" stop-color="#000" stop-opacity="${dk?0.14:0.08}"/>
+   <stop offset="0.30" stop-color="#fff" stop-opacity="${dk?0.06:0.12}"/>
+   <stop offset="0.50" stop-color="#fff" stop-opacity="${dk?0.08:0.14}"/>
+   <stop offset="0.72" stop-color="#000" stop-opacity="${dk?0.12:0.08}"/>
+   <stop offset="0.88" stop-color="#000" stop-opacity="${dk?0.22:0.16}"/>
+   <stop offset="1" stop-color="#000" stop-opacity="${dk?0.46:0.34}"/></linearGradient>
+  <linearGradient id="bodyU" x1="0" y1="0" x2="0" y2="1">
+   <stop offset="0" stop-color="#fff" stop-opacity="${dk?0.10:0.14}"/>
+   <stop offset="0.35" stop-color="#000" stop-opacity="0"/>
+   <stop offset="0.80" stop-color="#000" stop-opacity=".10"/>
+   <stop offset="1" stop-color="#000" stop-opacity=".26"/></linearGradient>
+  <radialGradient id="ax" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity="${dk?0.34:0.24}"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="ad" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity="${dk?0.50:0.40}"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="al" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".18"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="sh" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity="${dk?0.10:0.22}"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="fs" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".18"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <filter id="bm" x="-20%" y="-150%" width="140%" height="400%"><feGaussianBlur stdDeviation="5"/></filter>
+  <clipPath id="c"><path d="${body}"/></clipPath></defs>`;
+ const ao=`
+  <ellipse cx="98" cy="185" rx="72" ry="100" fill="url(#ax)"/>
+  <ellipse cx="302" cy="185" rx="72" ry="100" fill="url(#ax)"/>
+  <ellipse cx="200" cy="72" rx="60" ry="38" fill="url(#ad)"/>
+  <ellipse cx="200" cy="60" rx="42" ry="22" fill="url(#ad)"/>
+  <ellipse cx="94" cy="320" rx="38" ry="62" fill="url(#al)"/>
+  <ellipse cx="306" cy="320" rx="38" ry="62" fill="url(#al)"/>
+  <ellipse cx="168" cy="135" rx="90" ry="75" fill="url(#sh)"/>
+  <ellipse cx="240" cy="220" rx="60" ry="100" fill="url(#sh)" opacity=".55"/>
+  <ellipse cx="140" cy="260" rx="28" ry="90" fill="url(#fs)" opacity=".35"/>
+  <ellipse cx="260" cy="260" rx="28" ry="90" fill="url(#fs)" opacity=".35"/>`;
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420">${defs}<ellipse cx="200" cy="400" rx="145" ry="8" fill="#000" opacity="${dk?0.5:0.28}" filter="url(#bm)"/><path d="${body}" fill="${hex}"/><g clip-path="url(#c)">${neckhole}<rect width="400" height="420" fill="url(#bodyV)"/><rect width="400" height="420" fill="url(#bodyU)"/>${ao}</g><path d="${body}" fill="none" stroke="#000" stroke-opacity=".20" stroke-width="1.5"/>${col}${st}${etq}${lg}</svg>`;
  const uri="data:image/svg+xml,"+encodeURIComponent(svg);
  if(!useUp){SVG_CACHE.set(key,uri);if(SVG_CACHE.size>20)SVG_CACHE.delete(SVG_CACHE.keys().next().value)}
  return uri}
-/*SHIRT-END*/
 
 /* ===== RENDER ===== */
 const seg=(k,arr)=>`<div class="seg" role="group" aria-label="${k==="tam"?"Tamanho":"Modelo"}">${arr.map(v=>`<button type="button" data-act="${k}" data-v="${esc(v)}" aria-pressed="${sel[k]===v}">${esc(v)}</button>`).join("")}</div>`;
@@ -94,8 +105,7 @@ return `<section class="hero"><div class="w"><div class="hero-grid"><div><span c
 <div class="buy"><div class="p" id="pp"></div><button class="btn" id="add" data-act="add">Adicionar ao pedido</button></div>
 <div class="res" id="rs" aria-live="polite"></div></div></div></div></section>${medidasHtml()}${faqHtml()}${depoHtml()}`}
 let side="f";
-const BBOX=new Map(); /* caixa da camisa por foto (guarda só números, nunca canvas) */
-/* acha a camisa na foto: pixels que diferem do canto superior esquerdo; sem CORS/fundo simples => null (usa a foto inteira) */
+const BBOX=new Map();
 function bboxFor(src){if(BBOX.has(src))return BBOX.get(src);
  const p=new Promise(res=>{const im=new Image();im.crossOrigin="anonymous";
   im.onload=()=>{let r=null;try{const S=200,c=document.createElement("canvas");c.width=c.height=S;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(im,0,0,S,S);
@@ -105,7 +115,6 @@ function bboxFor(src){if(BBOX.has(src))return BBOX.get(src);
    res(r)};
   im.onerror=()=>res(null);im.src=src});
  BBOX.set(src,p);return p}
-/* âncora (frações da camisa) -> % do quadro 1:1, considerando object-fit:cover da foto */
 function posOverlay(el,k,bb,ar){const a=P.ancoras[k],b=bb||{u0:0,v0:0,u1:1,v1:1},cw=b.u1-b.u0,ch=b.v1-b.v0,
  kx=ar>1?ar:1,ky=ar<1?1/ar:1,ox=ar>1?(ar-1)/2:0,oy=ar<1?(1/ar-1)/2:0,w=a.w*cw*kx,h=a.h*ch*ky,
  x=(b.u0+a.cx*cw)*kx-ox-w/2,y=(b.v0+a.cy*ch)*ky-oy-h/2,pc=v=>(v*100).toFixed(2)+"%";
@@ -115,25 +124,18 @@ async function ajustarOverlays(w){for(const ph of $$(".ph",w)){const ov=$(".logo
  try{await im.decode()}catch(e){}
  const ar=im.naturalWidth&&im.naturalHeight?im.naturalWidth/im.naturalHeight:1,bb=await bboxFor(im.currentSrc||im.src);
  if(!ov.isConnected)return;posOverlay(ov,ph.dataset.k,bb,ar);ov.style.visibility="visible"}}
-/* aquece a foto da cor anterior e da próxima */
 function preloadAdjacentes(){const n=P.cores.length,i=P.cores.findIndex(x=>x.nome===sel.cor),
  go=()=>[-1,1].forEach(d=>{const c=P.cores[(i+d+n)%n];[c.foto,c.fotoCostas].filter(Boolean).forEach(s=>{const im=new Image();im.decoding="async";im.src=s;im.decode().catch(()=>{})})});
  "requestIdleCallback" in window?requestIdleCallback(go):go()}
 function paintPreview(){const c=cor(sel.cor),w=$("#pv");if(!w)return;$("#cn").textContent=c.nome;
- if(window.WFShirt3D)window.WFShirt3D.disposeAll();
  const fc=sel.pers==="frente_costas",hl=!!LOGO&&sel.pers!=="nenhuma",bl=lum(c.hex)>.45?"multiply":"normal";
- /* a logo nasce escondida e só aparece depois de decodificada e posicionada (sem salto) */
  const ov=()=>hl?`<img class="logo-overlay" alt="" src="${esc(LOGO)}" style="visibility:hidden;mix-blend-mode:${bl}">`:"";
  const ph=(src,alt,k)=>`<div class="ph" data-k="${k}"><img class="real" decoding="async" width="800" height="800" src="${esc(src)}" alt="${esc(alt)}">${ov()}</div>`;
- const svg=(s,alt,logo)=>window.WFShirt3D
-  ?`<div class="tee3d" data-tee3d data-color="${c.hex}" data-side="${s}" data-logo="${logo?"1":"0"}" data-logourl="${hl?esc(LOGO):""}" role="img" aria-label="${esc(alt)} — modelo 3D interativo"></div>`
-  :`<img class="shirt-fallback" decoding="async" src="${shirt(c.hex,s,logo,hl)}" alt="${esc(alt)}" width="400" height="420">`;
+ const svg=(s,alt,logo)=>`<img decoding="async" src="${shirt(c.hex,s,logo,hl)}" alt="${esc(alt)}" width="400" height="420">`;
  const cap=t=>fc?`<figcaption>${t}</figcaption>`:"";
  const front=`<figure>${c.foto?ph(c.foto,`Camiseta ${c.nome}, frente`,"peito"):svg("f",`Camiseta ${c.nome}, frente`,sel.pers==="peito"||fc)}${cap("FRENTE")}</figure>`;
  const back=`<figure>${c.fotoCostas?ph(c.fotoCostas,`Camiseta ${c.nome}, costas`,"costas"):svg("b",`Camiseta ${c.nome}, costas`,true)}${cap("COSTAS")}</figure>`;
- w.innerHTML=front+(fc?back:"");
- if(window.WFShirt3D){$$("[data-tee3d]",w).forEach(el=>{try{window.WFShirt3D.mount(el,{color:el.dataset.color,side:el.dataset.side,showLogo:el.dataset.logo==="1",logoUrl:el.dataset.logourl||""})}catch(_){const side=el.dataset.side,show=el.dataset.logo==="1";el.outerHTML=`<img class="shirt-fallback" decoding="async" src="${shirt(c.hex,side,show,hl)}" alt="Camiseta ${esc(c.nome)}" width="400" height="420">`}})}
- ajustarOverlays(w);preloadAdjacentes()}
+ w.innerHTML=front+(fc?back:"");ajustarOverlays(w);preloadAdjacentes()}
 function paintPrice(){const p=pers(sel.pers),q=Math.max(0,sel.q);$("#pp").innerHTML=`${brl(q*p.preco)}<small>${brl(p.preco)} por peça × ${q}</small>`;$("#add").disabled=q<1;if(sel.pers==="nenhuma"&&LOGO){LOGO=null;const i=$("#logo-file");if(i)i.value=""}if($("#lu")){$("#lu").hidden=sel.pers==="nenhuma";$("#lx").hidden=!LOGO}}
 function paintSummary(){const e=$("#rs");if(!e)return;const q=nq(cart),f=faltam(cart),ok=!f;
  e.innerHTML=`<h3>Seu pedido</h3>${cart.length?`<ul>${cart.map(i=>`<li><span>${i.q}× ${esc(desc(i))}</span><b>${brl(sub(i))}</b></li>`).join("")}</ul>`:'<p class="mut sm" style="margin:0 0 var(--s3)">Nenhuma peça adicionada.</p>'}<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${P.min}" aria-valuenow="${Math.min(q,P.min)}"><i style="transform:scaleX(${Math.min(1,q/P.min)})"></i></div><div class="pg ${ok?"ok":"pend"}"><span>${q}/${P.min} — ${ok?"mínimo atingido":"faltam "+f}</span><span>${brl(resumo(cart).total)}</span></div><p class="inc" role="status">${incentivo(cart)}</p><a class="btn full" href="#carrinho">Ver carrinho</a>`}
@@ -193,7 +195,6 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-act]");if(
  else if(a==="thumb"){$("#lbi").src=P.fotos[i];$("#lbi").alt=P.nome+", foto "+(i+1);$("#lb").classList.add("on");$("#lb button").focus()}
  else if(a==="pickpers"){sel.pers=t.dataset.v;const r=$("#p_"+sel.pers);if(r)r.checked=true;paintPreview();paintPrice();$("#monte").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}
  else if(a==="side"){side=t.dataset.v;paintPreview()}
-
  else if(a==="lbx")$("#lb").classList.remove("on")
  else if(a==="goto")gotoSec(t.dataset.t)
  else if(a==="menu")openMenu()
@@ -222,27 +223,22 @@ const subRows=c=>{const r=resumo(c);return `<div class="tot"><span>Subtotal</spa
 /* ===== LOGO (só prévia; não é salva) ===== */
 let LOGO=null,logoBusy=false,dbT;const LOGO_MAX=2*1024*1024,LOGO_TIPOS=["image/png","image/svg+xml","image/jpeg","image/webp"];
 const readUrl=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
-/*CUT-START*/
-/* Núcleo do cortador (puro, sem DOM): roda no Worker ou, em navegador sem Worker, na thread principal.
-   Recebe RGBA (Uint8ClampedArray), largura e altura; altera o buffer e devolve {x0,y0,w,h,pct}, ou null se o fundo não for simples. */
 function cutCore(d,W,H){
  const N=W*H,MIN_BG=.02,MIN_ILHA=.0008;
  const f=v=>{v/=255;return v>.04045?Math.pow((v+.055)/1.055,2.4):v/12.92},q=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;
  const lab=i=>{const R=f(d[i]),G=f(d[i+1]),B=f(d[i+2]),X=q((.4124*R+.3576*G+.1805*B)/.95047),Y=q(.2126*R+.7152*G+.0722*B),Z=q((.0193*R+.1192*G+.9505*B)/1.08883);return[116*Y-16,500*(X-Y),200*(Y-Z)]};
  const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
- /* B) amostra a borda inteira (a cada 8 px) e agrupa em Lab (espaço perceptual) */
  const S=[],add=(x,y)=>{const i=(y*W+x)*4;S.push({l:lab(i),r:d[i],g:d[i+1],b:d[i+2]})};
  for(let x=0;x<W;x+=8){add(x,0);add(x,H-1)}for(let y=0;y<H;y+=8){add(0,y);add(W-1,y)}
  const C=[];
  for(const s of S){let c=C.find(k=>dist(k.l,s.l)<12);if(!c){c={l:s.l.slice(),sl:[0,0,0],n:0,r:0,g:0,b:0,m:[]};C.push(c)}
   c.m.push(s);c.n++;c.r+=s.r;c.g+=s.g;c.b+=s.b;for(let j=0;j<3;j++)c.sl[j]+=s.l[j];c.l=c.sl.map(v=>v/c.n)}
  C.sort((x,y)=>y.n-x.n);const top=C[0],tot=S.length;
- if(top.n/tot<.55||(C[1]&&C[1].n/tot>.25))return null; /* fundo não uniforme ou bimodal */
+ if(top.n/tot<.55||(C[1]&&C[1].n/tot>.25))return null;
  const sd=Math.sqrt(top.m.reduce((s,t)=>s+dist(t.l,top.l)**2,0)/top.n),sdL=Math.sqrt(top.m.reduce((s,t)=>s+(t.l[0]-top.l[0])**2,0)/top.n);
- if(sdL>18)return null; /* ruído demais */
+ if(sdL>18)return null;
  const bgRGB=[top.r/top.n,top.g/top.n,top.b/top.n],E=new Float32Array(N);
  for(let p=0;p<N;p++)E[p]=dist(lab(p*4),top.l);
- /* C) flood fill a partir da borda; até 3 passes, ampliando a tolerância */
  let tol=2.2*sd+20,A=null,rem=0;
  for(let pass=0;pass<3;pass++){
   A=new Uint8Array(N).fill(255);const st=new Int32Array(N);let sp=0;rem=0;
@@ -250,8 +246,7 @@ function cutCore(d,W,H){
   for(let x=0;x<W;x++){push(x);push((H-1)*W+x)}for(let y=0;y<H;y++){push(y*W);push(y*W+W-1)}
   while(sp){const p=st[--sp],x=p%W;if(x>0)push(p-1);if(x<W-1)push(p+1);if(p>=W)push(p-W);if(p<N-W)push(p+W)}
   if(rem/N>=MIN_BG)break;tol*=1.25}
- if(rem/N<MIN_BG)return null; /* fundo complexo: recusa */
- /* D) ilhas (<0,08% da área) viram transparentes; buracos pequenos viram opacos */
+ if(rem/N<MIN_BG)return null;
  const qa=new Int32Array(N),min=Math.max(4,Math.round(N*MIN_ILHA));
  const lbl=(m,v)=>{const L=new Int32Array(N),ar=[0];let id=0;
   for(let s=0;s<N;s++){if(L[s]||m[s]!==v)continue;id++;let h=0,t=0;qa[t++]=s;L[s]=id;
@@ -263,12 +258,10 @@ function cutCore(d,W,H){
    ar.push(t)}return{L,ar}};
  const cc=(val,nv)=>{const{L,ar}=lbl(A,val);for(let p=0;p<N;p++)if(L[p]&&ar[L[p]]<min)A[p]=nv};
  cc(255,0);cc(0,255);
- /* miolos: área da cor do fundo cercada pela logo (dentro de O, A, R, e...) vira transparente; letra branca dentro de forma grande (miolo < 20% da forma) fica */
  const K=new Uint8Array(N),F=new Uint8Array(N);for(let p=0;p<N;p++)if(A[p]){if(E[p]<=tol)K[p]=1;else F[p]=1}
  const hk=lbl(K,1),hf=lbl(F,1),own=new Int32Array(hk.ar.length);
  for(let p=0;p<N;p++){const i=hk.L[p];if(!i||own[i])continue;const x=p%W;own[i]=(x>0&&hf.L[p-1])||(x<W-1&&hf.L[p+1])||(p>=W&&hf.L[p-W])||(p<N-W&&hf.L[p+W])||0}
  for(let p=0;p<N;p++){const i=hk.L[p];if(i&&own[i]&&hk.ar[i]>=.2*hf.ar[own[i]])A[p]=0}
- /* matting: nos 3 px junto ao fundo, a cor vira a da tinta vizinha e o alfa é a proporção fundo→tinta (sem halo claro nem escuro) */
  const A0=A.slice(),maxD=Math.max(tol*1.6,30),D=new Uint8Array(N),nb=(p,fn)=>{const x=p%W;return(x>0&&fn(p-1))||(x<W-1&&fn(p+1))||(p>=W&&fn(p-W))||(p<N-W&&fn(p+W))};
  for(let p=0;p<N;p++)if(A0[p]&&nb(p,k=>!A0[k]))D[p]=1;
  for(let p=0;p<N;p++)if(A0[p]&&!D[p]&&nb(p,k=>D[k]===1))D[p]=2;
@@ -280,30 +273,25 @@ function cutCore(d,W,H){
    if(n2>400){al=Math.max(0,Math.min(1,((d[i]-bgRGB[0])*vr+(d[i+1]-bgRGB[1])*vg+(d[i+2]-bgRGB[2])*vb)/n2));d[i]=d[bi];d[i+1]=d[bi+1];d[i+2]=d[bi+2]}}
   else if(al<1){const a=Math.max(al,.02);d[i]=(d[i]-(1-a)*bgRGB[0])/a;d[i+1]=(d[i+1]-(1-a)*bgRGB[1])/a;d[i+2]=(d[i+2]-(1-a)*bgRGB[2])/a}
   A[p]=Math.round(255*al)}
- /* suavização: blur ~0,7 px só no alfa (1 passe de [1 2 1]); o fundo não cresce de volta */
  const T=new Float32Array(N),U=new Float32Array(N);for(let p=0;p<N;p++)T[p]=A[p];
  for(let it=0;it<1;it++){
   for(let y=0;y<H;y++){const o=y*W;for(let x=0;x<W;x++){const p=o+x;U[p]=(T[x>0?p-1:p]+2*T[p]+T[x<W-1?p+1:p])/4}}
   for(let y=0;y<H;y++){const o=y*W;for(let x=0;x<W;x++){const p=o+x;T[p]=(U[y>0?p-W:p]+2*U[p]+U[y<H-1?p+W:p])/4}}}
- /* E) caixa do alfa + 4 px de folga */
  let x0=W,y0=H,x1=-1,y1=-1;
  for(let p=0;p<N;p++){const al=A0[p]?(D[p]?Math.round(T[p]):255):0;d[p*4+3]=al;if(al>0){const x=p%W,y=(p-x)/W;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}}
  if(x1<0)return null;
  x0=Math.max(0,x0-4);y0=Math.max(0,y0-4);x1=Math.min(W-1,x1+4);y1=Math.min(H-1,y1+4);
  return{x0,y0,w:x1-x0+1,h:y1-y0+1,pct:rem/N}}
-/*CUT-END*/
-/* Worker inline (Blob). Só trafega ArrayBuffer, então funciona até no iOS 14 (sem OffscreenCanvas). Sem Worker: thread principal + aviso. */
 function cutWorker(buf,W,H){return new Promise((ok,no)=>{
  if(!window.Worker){toast("Navegador antigo: processamento mais lento.");try{const r=cutCore(new Uint8ClampedArray(buf),W,H);ok(r&&{...r,buf})}catch(e){no(e)}return}
  const url=URL.createObjectURL(new Blob([`const cutCore=${cutCore};onmessage=e=>{const{buf,W,H}=e.data,r=cutCore(new Uint8ClampedArray(buf),W,H);postMessage({r,buf},[buf])}`],{type:"text/javascript"}));
  const w=new Worker(url),fim=()=>{clearTimeout(tm);w.terminate();URL.revokeObjectURL(url)},tm=setTimeout(()=>{fim();no(new Error("tempo esgotado"))},15000);
  w.onmessage=e=>{fim();ok(e.data.r&&{...e.data.r,buf:e.data.buf})};w.onerror=e=>{fim();no(e)};
  w.postMessage({buf,W,H},[buf])})}
-/* Ordem: SVG direto -> PNG/WebP com transparência direto -> Worker (JPEG, WebP ou PNG opaco) -> original com aviso */
 async function prepararLogo(f){
  const url=await readUrl(f);
  if(f.type==="image/svg+xml")return{url,msg:"Logo carregada"};
- const im=new Image();im.src=url;await im.decode();let c=null; /* Image em vez de createImageBitmap: funciona no Safari/iOS 14 */
+ const im=new Image();im.src=url;await im.decode();let c=null;
  try{const k=Math.min(1,1000/Math.max(im.naturalWidth,im.naturalHeight)),W=Math.max(1,Math.round(im.naturalWidth*k)),H=Math.max(1,Math.round(im.naturalHeight*k));
   c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(im,0,0,W,H);
   const d=x.getImageData(0,0,W,H).data,pts=[0,W-1,(H-1)*W,W*H-1];for(let i=0;i<100;i++)pts.push(Math.floor(Math.random()*W*H));
@@ -315,7 +303,6 @@ async function prepararLogo(f){
   const blob=await new Promise(ok=>o.toBlob(ok,"image/png"));o.width=o.height=0;
   return{url:await readUrl(blob),msg:"Fundo removido"}}
  finally{if(c)c.width=c.height=0}}
-/* Fluxo anti-zoom/anti-salto: o DOM só muda no fim, depois de decodificar; a rolagem é restaurada */
 async function handleLogoFile(f){const inp=$("#logo-file");if(!f||logoBusy)return;
  const bad=m=>{toast(m);if(inp)inp.value=""};
  if(!LOGO_TIPOS.includes(f.type))return bad("Use PNG, SVG ou JPG.");
@@ -335,9 +322,6 @@ const faqHtml=()=>{const lista=PRODUTO.descontos.filter(d=>d.pct>0).map(d=>`${d.
 document.addEventListener("change",e=>{if(e.target.id==="logo-file"){const f=e.target.files[0];clearTimeout(dbT);dbT=setTimeout(()=>handleLogoFile(f),200)}});
 document.addEventListener("click",e=>{if(e.target.closest('[data-act="logox"]'))logoRemove()});
 
-/* The module loads asynchronously; upgrade the preview once the interactive 3D engine is ready. */
-window.addEventListener("wf-three-ready",()=>{if(IS_HOME())paintPreview()});
-window.addEventListener("wf-three-error",()=>{});
 /* ===== INIT ===== */
 let rq=0;addEventListener("scroll",()=>{if(rq)return;rq=requestAnimationFrame(()=>{rq=0;$$(".rv:not(.in)").forEach(e=>{if(e.getBoundingClientRect().top<innerHeight)e.classList.add("in")})})},{passive:true});
 P.cores.slice(0,2).forEach(c=>{if(c.foto){const l=document.createElement("link");l.rel="preload";l.as="image";l.href=c.foto;document.head.appendChild(l)}});
