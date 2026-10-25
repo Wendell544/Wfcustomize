@@ -7,6 +7,7 @@ Site estático (HTML, CSS e JavaScript puros). Não precisa de servidor nem de i
 - `css/style.css` – todo o visual (cores, modo escuro, responsivo)
 - `js/config.js` – **o que você edita**: WhatsApp, preços, mínimo, tamanhos, cores e fotos
 - `js/app.js` – lógica (configurador, carrinho, checkout, mensagem do WhatsApp)
+- `js/tee3d.js` – modelo procedural 3D da camiseta e controles de rotação
 
 ## Publicar no GitHub Pages
 1. Crie um repositório e envie estes arquivos mantendo as pastas `css/` e `js/`.
@@ -34,8 +35,10 @@ Abra o `index.html` no navegador, ou rode `python3 -m http.server` na pasta e ac
 - Não guarda pedidos: eles existem só na conversa do WhatsApp.
 - A logo que aparece nas camisetas é um exemplo; a arte do cliente vem pelo WhatsApp.
 
-## Realismo do SVG — como funciona
-Cores sem foto usam a camiseta desenhada em 11 camadas fixas: sombra de contato, silhueta, luz principal, oclusão nas axilas e no decote, 6 dobras, textura de malha (só no corpo), ribana canelada, costuras, etiqueta (costas), logo e vinheta. Nada é aleatório. O desenho de cada cor/lado fica em cache (20 itens) e muda no tema escuro (sombra e luz mais fortes). Para ver a diferença, compare Preta e Branca.
+## Visualizador de camiseta
+O configurador usa `js/tee3d.js` com Three.js para renderizar uma camiseta 3D interativa: arraste a peça para girar e conferir a frente, as laterais e as costas. A cor-base vem diretamente da cor selecionada; a iluminação suave cria o volume. Não são aplicadas listras, ruído ou costuras tracejadas. Se o módulo 3D ou a conexão externa não carregar, o site mantém uma prévia SVG como alternativa.
+
+Para máxima fidelidade à peça real, use fotos reais por cor nos campos `foto` e `fotoCostas` dentro de `js/config.js`; o site prioriza essas fotos quando estão preenchidas.
 
 ## Posição da logo e calibração
 `PRODUTO.ancoras` (em `js/config.js`) guarda a posição da logo em frações da camisa (não da imagem), então vale para a ilustração e para qualquer foto. Nas fotos, o site acha a camisa sozinho (fundo liso) e, se não conseguir, usa a foto inteira. Para calibrar: abra a prévia, ajuste `cx`/`cy` (centro) e `w`/`h` (tamanho) em passos de 0,01, salve e recarregue. O calibrador com arraste ainda não foi implementado.

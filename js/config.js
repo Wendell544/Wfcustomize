@@ -12,7 +12,7 @@ const PRODUTO={
  fotos:[/* "https://i.ibb.co/XXXX/foto1.jpg" */],
  /* "foto": link direto da foto real da cor; quando preenchido, substitui a ilustração */
  cores:[
-  {nome:"Preta",hex:"#161616",foto:"",fotoCostas:""},{nome:"Branca",hex:"#f7f7f7",foto:"",fotoCostas:""},{nome:"Off-white",hex:"#efe8d6",foto:"",fotoCostas:""},{nome:"Bege",hex:"#cdb99a",foto:"",fotoCostas:""},
+  {nome:"Preta",hex:"#000000",foto:"",fotoCostas:""},{nome:"Branca",hex:"#ffffff",foto:"",fotoCostas:""},{nome:"Off-white",hex:"#efe8d6",foto:"",fotoCostas:""},{nome:"Bege",hex:"#cdb99a",foto:"",fotoCostas:""},
   {nome:"Cinza mescla",hex:"#b9bcc2",foto:"",fotoCostas:""},{nome:"Cinza chumbo",hex:"#4b4d52",foto:"",fotoCostas:""},{nome:"Marrom",hex:"#5b4a3d",foto:"",fotoCostas:""},{nome:"Caramelo",hex:"#b8742a",foto:"",fotoCostas:""},
   {nome:"Amarela",hex:"#f2b705",foto:"",fotoCostas:""},{nome:"Vermelha",hex:"#d3122a",foto:"",fotoCostas:""},{nome:"Vinho",hex:"#6e1830",foto:"",fotoCostas:""},{nome:"Rosa",hex:"#f08fb5",foto:"",fotoCostas:""},
   {nome:"Lilás",hex:"#c9b6e4",foto:"",fotoCostas:""},{nome:"Azul bebê",hex:"#9fc3e8",foto:"",fotoCostas:""},{nome:"Azul royal",hex:"#1f3fd1",foto:"",fotoCostas:""},{nome:"Azul marinho",hex:"#16213f",foto:"",fotoCostas:""},
