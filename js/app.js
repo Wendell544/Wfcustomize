@@ -81,7 +81,6 @@ const hx=(n,i)=>(cor(n)||P.cores[i%P.cores.length]).hex;
 function viewHome(){const mn=Math.min(...P.personalizacoes.map(x=>x.preco));
 return `<section class="hero"><div class="w"><div class="hero-grid"><div><span class="eyebrow">Atacado de camisetas</span><h1>Camiseta boa, em quantidade. Do jeito da sua <em>marca</em>.</h1><p class="lead">Algodão 100% em ${P.cores.length} cores, com ou sem logo. Monte o pedido em minutos e finalize no WhatsApp.</p><div class="cta"><button class="btn" data-act="scroll">Montar pedido</button><button class="btn ghost" data-act="goto" data-t="valores">Ver valores</button></div><ul class="trust"><li>Mínimo ${P.min} peças</li><li>${P.cores.length} cores</li><li>Frete combinado no WhatsApp</li></ul></div><div class="hero-art" aria-hidden="true"><img alt="" width="400" height="420" src="${shirt(hx("Preta",0),"f",true)}"></div></div><div class="facts"><div><b>${brl(mn)}</b><span>por peça, a partir de</span></div><div><b>100%</b><span>algodão</span></div><div><b>P · M · G</b><span>masculina e feminina</span></div><div><b>${P.min}+</b><span>peças por pedido</span></div></div></div></section>
 <section class="rv" id="como"><div class="w"><div class="sechd"><div class="kicker">Como funciona</div><h2>Três passos</h2></div><ol class="how"><li><span class="n">01</span><h3>Monte o pedido</h3><p class="mut">Escolha cor, tamanho, modelo e personalização. Pedidos maiores têm desconto.</p></li><li><span class="n">02</span><h3>Envie sua logo</h3><p class="mut">Veja a prévia aqui e envie o arquivo original pelo WhatsApp junto do pedido.</p></li><li><span class="n">03</span><h3>Feche pelo WhatsApp</h3><p class="mut">A mensagem sai pronta. O pedido só é enviado quando você confirmar no WhatsApp.</p></li></ol></div></section><section class="rv" id="valores"><div class="w"><div class="sechd"><div class="kicker">Valores</div><h2>Preço por peça</h2><p>Mínimo de ${P.min} peças por pedido, somando todas as cores, tamanhos e modelos.</p></div><div class="prices">${P.personalizacoes.map((x,i)=>`<article class="pc${i===1?" hl":""}">${i===1?'<span class="tag">Recomendado</span>':""}<h3>${esc(x.nome)}</h3><p class="mut sm">${esc(x.desc)}</p><div class="pr">${brl(x.preco)} <small>por peça</small></div><button class="btn ghost full" data-act="pickpers" data-v="${x.id}">Escolher</button></article>`).join("")}</div></div></section>
-<section class="rv" id="visualizador-3d"><div class="w"><div class="sechd"><div class="kicker">Prévia interativa</div><h2>Veja sua camiseta em 3D</h2><p>Gire o modelo, veja frente e costas e altere entre preto e branco. A cor acompanha a seleção do pedido.</p></div><div class="wf3d-card"><div class="wf3d-stage"><canvas id="wf3d-canvas" aria-label="Camiseta 3D interativa"></canvas><div class="wf3d-hint">Arraste para girar · Use a roda do mouse para aproximar</div></div><div class="wf3d-controls"><div class="wf3d-colors" role="group" aria-label="Cor do mockup 3D"><button type="button" data-wf3d-color="#161616" aria-pressed="true"><i style="background:#161616"></i>Preta</button><button type="button" data-wf3d-color="#f7f7f7" aria-pressed="false"><i style="background:#f7f7f7"></i>Branca</button></div><div class="wf3d-views"><button type="button" data-wf3d-view="front" aria-pressed="true">Frente</button><button type="button" data-wf3d-view="back" aria-pressed="false">Costas</button><button type="button" data-wf3d-view="reset">Vista inicial</button></div><p class="wf3d-note">Mockup 3D ilustrativo para pré-visualização. A aparência final da peça pode variar.</p></div></div></div></section>
 <section class="rv" id="monte"><div class="w"><div class="cfg"><div class="gal"><div class="stage"><div class="main-img-wrap" id="pv"></div>${P.fotos.length?`<div class="thumbs">${P.fotos.map((f,i)=>`<button type="button" data-act="thumb" data-i="${i}" aria-label="Ampliar foto ${i+1}"><img loading="lazy" decoding="async" src="${esc(f)}" alt="${esc(P.nome)}, foto ${i+1}"></button>`).join("")}</div>`:""}</div></div>
 <div class="panel"><h2 style="margin-bottom:var(--s5)">${esc(P.nome)}</h2>
 <fieldset><legend><span class="n">1</span>Cor<em id="cn"></em></legend><div class="sw">${P.cores.map(x=>`<button type="button" data-act="cor" data-v="${esc(x.nome)}" aria-pressed="${x.nome===sel.cor}"><i style="background:${x.hex}"></i>${esc(x.nome)}</button>`).join("")}</div></fieldset>
@@ -176,7 +175,7 @@ function gotoSec(id){if(IS_HOME()){const e=document.getElementById(id);e&&e.scro
 
 /* ===== EVENTOS (delegação) ===== */
 document.addEventListener("click",e=>{const t=e.target.closest("[data-act]");if(!t)return;const a=t.dataset.act,i=+t.dataset.i,d=+t.dataset.d;
- if(a==="cor"||a==="tam"||a==="gen"){sel[a]=t.dataset.v;$$(`[data-act="${a}"]`).forEach(b=>b.setAttribute("aria-pressed",b===t));if(a==="cor")document.dispatchEvent(new CustomEvent("wf3d:color",{detail:{hex:cor(sel.cor).hex,name:sel.cor}}));paintPreview();paintMeas()}
+ if(a==="cor"||a==="tam"||a==="gen"){sel[a]=t.dataset.v;$$(`[data-act="${a}"]`).forEach(b=>b.setAttribute("aria-pressed",b===t));paintPreview();paintMeas()}
  else if(a==="qd"){const q=$("#pq");sel.q=Math.min(9999,Math.max(1,(parseInt(q.value)||0)+d));q.value=sel.q;paintPrice()}
  else if(a==="add"){const n=Math.min(9999,parseInt($("#pq").value)||0);if(n<1)return;const k=cart.find(x=>x.cor===sel.cor&&x.tam===sel.tam&&x.gen===sel.gen&&x.pers===sel.pers);k?k.q+=n:cart.push({cor:sel.cor,tam:sel.tam,gen:sel.gen,pers:sel.pers,q:n});save(true);paintSummary();toast(`${n}× ${sel.cor} ${sel.tam} adicionada${n>1?"s":""} ao pedido`);t.classList.remove("bounce");void t.offsetWidth;t.classList.add("bounce")}
  else if(a==="cd"){cart[i].q=Math.min(9999,Math.max(1,cart[i].q+d));save();route()}
@@ -219,7 +218,7 @@ const readUrl=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>r
 /* Núcleo do cortador (puro, sem DOM): roda no Worker ou, em navegador sem Worker, na thread principal.
    Recebe RGBA (Uint8ClampedArray), largura e altura; altera o buffer e devolve {x0,y0,w,h,pct}, ou null se o fundo não for simples. */
 function cutCore(d,W,H){
- const N=W*H,MIN_BG=.45,MIN_ILHA=.0008;
+ const N=W*H,MIN_BG=.02,MIN_ILHA=.0008;
  const f=v=>{v/=255;return v>.04045?Math.pow((v+.055)/1.055,2.4):v/12.92},q=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;
  const lab=i=>{const R=f(d[i]),G=f(d[i+1]),B=f(d[i+2]),X=q((.4124*R+.3576*G+.1805*B)/.95047),Y=q(.2126*R+.7152*G+.0722*B),Z=q((.0193*R+.1192*G+.9505*B)/1.08883);return[116*Y-16,500*(X-Y),200*(Y-Z)]};
  const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
@@ -245,29 +244,42 @@ function cutCore(d,W,H){
   if(rem/N>=MIN_BG)break;tol*=1.25}
  if(rem/N<MIN_BG)return null; /* fundo complexo: recusa */
  /* D) ilhas (<0,08% da área) viram transparentes; buracos pequenos viram opacos */
- const qa=new Int32Array(N),lb=new Uint8Array(N),min=Math.max(4,Math.round(N*MIN_ILHA));
- const cc=(val,nv)=>{lb.fill(0);for(let s=0;s<N;s++){if(lb[s]||A[s]!==val)continue;let h=0,t=0;qa[t++]=s;lb[s]=1;
-  while(h<t){const p=qa[h++],x=p%W;
-   if(x>0&&!lb[p-1]&&A[p-1]===val){lb[p-1]=1;qa[t++]=p-1}
-   if(x<W-1&&!lb[p+1]&&A[p+1]===val){lb[p+1]=1;qa[t++]=p+1}
-   if(p>=W&&!lb[p-W]&&A[p-W]===val){lb[p-W]=1;qa[t++]=p-W}
-   if(p<N-W&&!lb[p+W]&&A[p+W]===val){lb[p+W]=1;qa[t++]=p+W}}
-  if(t<min)for(let k=0;k<t;k++)A[qa[k]]=nv}};
+ const qa=new Int32Array(N),min=Math.max(4,Math.round(N*MIN_ILHA));
+ const lbl=(m,v)=>{const L=new Int32Array(N),ar=[0];let id=0;
+  for(let s=0;s<N;s++){if(L[s]||m[s]!==v)continue;id++;let h=0,t=0;qa[t++]=s;L[s]=id;
+   while(h<t){const p=qa[h++],x=p%W;
+    if(x>0&&!L[p-1]&&m[p-1]===v){L[p-1]=id;qa[t++]=p-1}
+    if(x<W-1&&!L[p+1]&&m[p+1]===v){L[p+1]=id;qa[t++]=p+1}
+    if(p>=W&&!L[p-W]&&m[p-W]===v){L[p-W]=id;qa[t++]=p-W}
+    if(p<N-W&&!L[p+W]&&m[p+W]===v){L[p+W]=id;qa[t++]=p+W}}
+   ar.push(t)}return{L,ar}};
+ const cc=(val,nv)=>{const{L,ar}=lbl(A,val);for(let p=0;p<N;p++)if(L[p]&&ar[L[p]]<min)A[p]=nv};
  cc(255,0);cc(0,255);
- /* matting: nos 2 px junto ao fundo, alfa = distância ao fundo / máximo, e a cor perde o resíduo do fundo (sem halo) */
+ /* miolos: área da cor do fundo cercada pela logo (dentro de O, A, R, e...) vira transparente; letra branca dentro de forma grande (miolo < 20% da forma) fica */
+ const K=new Uint8Array(N),F=new Uint8Array(N);for(let p=0;p<N;p++)if(A[p]){if(E[p]<=tol)K[p]=1;else F[p]=1}
+ const hk=lbl(K,1),hf=lbl(F,1),own=new Int32Array(hk.ar.length);
+ for(let p=0;p<N;p++){const i=hk.L[p];if(!i||own[i])continue;const x=p%W;own[i]=(x>0&&hf.L[p-1])||(x<W-1&&hf.L[p+1])||(p>=W&&hf.L[p-W])||(p<N-W&&hf.L[p+W])||0}
+ for(let p=0;p<N;p++){const i=hk.L[p];if(i&&own[i]&&hk.ar[i]>=.2*hf.ar[own[i]])A[p]=0}
+ /* matting: nos 3 px junto ao fundo, a cor vira a da tinta vizinha e o alfa é a proporção fundo→tinta (sem halo claro nem escuro) */
  const A0=A.slice(),maxD=Math.max(tol*1.6,30),D=new Uint8Array(N),nb=(p,fn)=>{const x=p%W;return(x>0&&fn(p-1))||(x<W-1&&fn(p+1))||(p>=W&&fn(p-W))||(p<N-W&&fn(p+W))};
  for(let p=0;p<N;p++)if(A0[p]&&nb(p,k=>!A0[k]))D[p]=1;
  for(let p=0;p<N;p++)if(A0[p]&&!D[p]&&nb(p,k=>D[k]===1))D[p]=2;
- for(let p=0;p<N;p++){if(!D[p])continue;const al=Math.min(1,E[p]/maxD);if(al>=1)continue;const a=Math.max(al,.02),i=p*4;
-  d[i]=(d[i]-(1-a)*bgRGB[0])/a;d[i+1]=(d[i+1]-(1-a)*bgRGB[1])/a;d[i+2]=(d[i+2]-(1-a)*bgRGB[2])/a;A[p]=Math.round(255*al)}
- /* suavização: blur ~1,5 px só no alfa (5 passes de [1 2 1]); o fundo não cresce de volta */
+ for(let p=0;p<N;p++)if(A0[p]&&!D[p]&&nb(p,k=>D[k]===2))D[p]=3;
+ const thr=Math.max(maxD*2,50);
+ for(let p=0;p<N;p++){if(!D[p])continue;const x=p%W,y=(p-x)/W,i=p*4;let bi=-1,bd=99,al=Math.min(1,E[p]/maxD);
+  for(let dy=-4;dy<=4;dy++){const yy=y+dy;if(yy<0||yy>=H)continue;for(let dx=-4;dx<=4;dx++){const xx=x+dx;if(xx<0||xx>=W)continue;const q=yy*W+xx,e=dx*dx+dy*dy;if(A0[q]&&E[q]>=thr&&e<bd){bd=e;bi=q*4}}}
+  if(bi>=0){const vr=d[bi]-bgRGB[0],vg=d[bi+1]-bgRGB[1],vb=d[bi+2]-bgRGB[2],n2=vr*vr+vg*vg+vb*vb;
+   if(n2>400){al=Math.max(0,Math.min(1,((d[i]-bgRGB[0])*vr+(d[i+1]-bgRGB[1])*vg+(d[i+2]-bgRGB[2])*vb)/n2));d[i]=d[bi];d[i+1]=d[bi+1];d[i+2]=d[bi+2]}}
+  else if(al<1){const a=Math.max(al,.02);d[i]=(d[i]-(1-a)*bgRGB[0])/a;d[i+1]=(d[i+1]-(1-a)*bgRGB[1])/a;d[i+2]=(d[i+2]-(1-a)*bgRGB[2])/a}
+  A[p]=Math.round(255*al)}
+ /* suavização: blur ~0,7 px só no alfa (1 passe de [1 2 1]); o fundo não cresce de volta */
  const T=new Float32Array(N),U=new Float32Array(N);for(let p=0;p<N;p++)T[p]=A[p];
- for(let it=0;it<5;it++){
+ for(let it=0;it<1;it++){
   for(let y=0;y<H;y++){const o=y*W;for(let x=0;x<W;x++){const p=o+x;U[p]=(T[x>0?p-1:p]+2*T[p]+T[x<W-1?p+1:p])/4}}
   for(let y=0;y<H;y++){const o=y*W;for(let x=0;x<W;x++){const p=o+x;T[p]=(U[y>0?p-W:p]+2*U[p]+U[y<H-1?p+W:p])/4}}}
  /* E) caixa do alfa + 4 px de folga */
  let x0=W,y0=H,x1=-1,y1=-1;
- for(let p=0;p<N;p++){const al=A0[p]?Math.round(T[p]):0;d[p*4+3]=al;if(al>0){const x=p%W,y=(p-x)/W;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}}
+ for(let p=0;p<N;p++){const al=A0[p]?(D[p]?Math.round(T[p]):255):0;d[p*4+3]=al;if(al>0){const x=p%W,y=(p-x)/W;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}}
  if(x1<0)return null;
  x0=Math.max(0,x0-4);y0=Math.max(0,y0-4);x1=Math.min(W-1,x1+4);y1=Math.min(H-1,y1+4);
  return{x0,y0,w:x1-x0+1,h:y1-y0+1,pct:rem/N}}
@@ -281,19 +293,20 @@ function cutWorker(buf,W,H){return new Promise((ok,no)=>{
  w.postMessage({buf,W,H},[buf])})}
 /* Ordem: SVG direto -> PNG/WebP com transparência direto -> Worker (JPEG, WebP ou PNG opaco) -> original com aviso */
 async function prepararLogo(f){
- if(f.type==="image/svg+xml")return{url:await readUrl(f),msg:"Logo carregada"};
- const bm=await createImageBitmap(f);let c=null;
- try{const k=Math.min(1,1000/Math.max(bm.width,bm.height)),W=Math.max(1,Math.round(bm.width*k)),H=Math.max(1,Math.round(bm.height*k));
-  c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(bm,0,0,W,H);
+ const url=await readUrl(f);
+ if(f.type==="image/svg+xml")return{url,msg:"Logo carregada"};
+ const im=new Image();im.src=url;await im.decode();let c=null; /* Image em vez de createImageBitmap: funciona no Safari/iOS 14 */
+ try{const k=Math.min(1,1000/Math.max(im.naturalWidth,im.naturalHeight)),W=Math.max(1,Math.round(im.naturalWidth*k)),H=Math.max(1,Math.round(im.naturalHeight*k));
+  c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(im,0,0,W,H);
   const d=x.getImageData(0,0,W,H).data,pts=[0,W-1,(H-1)*W,W*H-1];for(let i=0;i<100;i++)pts.push(Math.floor(Math.random()*W*H));
-  if(pts.filter(p=>d[p*4+3]<200).length>pts.length*.05)return{url:await readUrl(f),msg:"Logo carregada"};
+  if(pts.filter(p=>d[p*4+3]<200).length>pts.length*.05)return{url,msg:"Logo carregada"};
   const r=await cutWorker(d.buffer,W,H);
-  if(!r)return{url:await readUrl(f),msg:"Fundo complexo. Use PNG ou SVG com fundo transparente."};
-  x.putImageData(new ImageData(new Uint8ClampedArray(r.buf),W,H),0,0);
+  if(!r)return{url,msg:"Fundo complexo. Use PNG ou SVG com fundo transparente."};
+  const id=x.createImageData(W,H);id.data.set(new Uint8ClampedArray(r.buf));x.putImageData(id,0,0);
   const o=document.createElement("canvas");o.width=r.w;o.height=r.h;o.getContext("2d").drawImage(c,r.x0,r.y0,r.w,r.h,0,0,r.w,r.h);
   const blob=await new Promise(ok=>o.toBlob(ok,"image/png"));o.width=o.height=0;
   return{url:await readUrl(blob),msg:"Fundo removido"}}
- finally{bm.close();if(c)c.width=c.height=0}}
+ finally{if(c)c.width=c.height=0}}
 /* Fluxo anti-zoom/anti-salto: o DOM só muda no fim, depois de decodificar; a rolagem é restaurada */
 async function handleLogoFile(f){const inp=$("#logo-file");if(!f||logoBusy)return;
  const bad=m=>{toast(m);if(inp)inp.value=""};
@@ -301,11 +314,10 @@ async function handleLogoFile(f){const inp=$("#logo-file");if(!f||logoBusy)retur
  if(f.size>LOGO_MAX)return bad("Imagem muito grande. Máximo 2 MB.");
  logoBusy=true;document.body.classList.add("is-processing");const y=scrollY;
  try{let r;try{r=await prepararLogo(f)}catch(e){r={url:await readUrl(f),msg:"Não consegui separar o fundo. Use PNG ou SVG com fundo transparente."}}
-  await new Promise(ok=>{const im=new Image();im.onload=im.onerror=ok;im.src=r.url});
   const im=new Image();im.src=r.url;await im.decode().catch(()=>{});
   LOGO=r.url;paintPreview();paintPrice();toast(r.msg)}
  catch(e){bad("Não foi possível processar a imagem.")}
- finally{logoBusy=false;document.body.classList.remove("is-processing");scrollTo({top:y,left:0,behavior:"instant"})}}
+ finally{logoBusy=false;document.body.classList.remove("is-processing");{const de=document.documentElement,sb=de.style.scrollBehavior;de.style.scrollBehavior="auto";scrollTo(0,y);de.style.scrollBehavior=sb}}}
 function logoRemove(){LOGO=null;const inp=$("#logo-file");if(inp)inp.value="";paintPreview();paintPrice();toast("Logo removida da prévia")}
 /* ===== FAQ E DEPOIMENTOS ===== */
 const depoHtml=()=>DEPOIMENTOS.length?`<section class="rv" id="depoimentos"><div class="w"><div class="sechd"><div class="kicker">Quem compra</div><h2>O que dizem</h2></div><div class="depo">${DEPOIMENTOS.map(d=>`<article><b>${esc(d.nome)}</b><div class="mut sm">${esc([d.empresa,d.cidade].filter(Boolean).join(" · "))}</div><p>${esc(d.texto)}</p></article>`).join("")}</div></div></section>`:"";
