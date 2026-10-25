@@ -22,7 +22,7 @@ function reveal(){const els=$$(".rv:not(.in)");if(!("IntersectionObserver" in wi
 function openWa(u){const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2400)}
 
-/* ===== ILUSTRAÇÃO (SVG 3D realista, cores fiéis) ===== */
+/* ===== ILUSTRAÇÃO (SVG limpo, cor exata) ===== */
 const shade=(hex,f)=>{const n=parseInt(hex.slice(1),16),c=v=>Math.max(0,Math.min(255,Math.round(v*f))).toString(16).padStart(2,"0");return"#"+c(n>>16)+c(n>>8&255)+c(n&255)};
 const lighten=(hex,amt)=>{const n=parseInt(hex.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;const nr=Math.round(r+(255-r)*amt),ng=Math.round(g+(255-g)*amt),nb=Math.round(b+(255-b)*amt);return"#"+((1<<24)+(nr<<16)+(ng<<8)+nb).toString(16).slice(1)};
 const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==="dark":matchMedia("(prefers-color-scheme:dark)").matches};
@@ -32,58 +32,45 @@ const r1=n=>Math.round(n*10)/10;
 const pd=p=>`M${p[0]}C${p[1]} ${p[2]} ${p[3]}`;
 const ancBox=(a,b)=>({x:r1(b.x+(a.cx-a.w/2)*b.w),y:r1(b.y+(a.cy-a.h/2)*b.h),w:r1(a.w*b.w),h:r1(a.h*b.h)});
 
+/* Camisa: 100% limpa. Sem manchas, sem gradientes internos.
+   Só: cor plana + contorno + gola + costura sutil + etiqueta (costas) + logo. */
 function shirt(hex,side,logo,up){
  const f=side==="f",dk=isDark(),useUp=!!(logo&&up&&LOGO),mx=!!(P.opcoes&&P.opcoes.realismoMaximo),key=[hex,side,logo?1:0,dk?1:0,mx?1:0].join("|");
  if(!useUp&&SVG_CACHE.has(key)){const v=SVG_CACHE.get(key);SVG_CACHE.delete(key);SVG_CACHE.set(key,v);return v}
- const light=lum(hex)>.42;
- /* Sombreado pela MESMA cor (não por preto empilhado) — mantém a cor fiel */
- const shCol=shade(hex,.65),midCol=shade(hex,.85);
- const hlCol=lighten(hex,light?.10:.35);
- const aoCol=shade(hex,.50);
- const shOp=0.50,midOp=0.25,hlOp=light?.25:.40,aoOp=light?.30:.25,neckOp=light?.40:.55;
+
+ const L=lum(hex),light=L>.42,veryDark=L<.10;
+ /* Em modo escuro, preto puro some. Levanta ~6% e adiciona rim light. */
+ const fill=(dk&&veryDark)?lighten(hex,.06):hex;
+ /* Modo escuro + cor escura: contorno CLARO (rim light).
+    Restante: contorno escuro (sombra) — dá silhueta em qualquer fundo claro. */
+ const outline=(dk&&!light)?lighten(fill,.35):shade(fill,.65);
+ const neckFill=shade(fill,.5);
+ const outlineW=(dk&&veryDark)?2:1.4;
+ const shadowOp=dk?.4:.2;
+
  const body="M148 44C165 54 235 54 252 44L326 70C340 74 348 80 354 90L392 160C394 166 392 170 387 172L338 196C333 198 329 196 327 192L310 164V372C310 384 302 392 290 392H110C98 392 90 384 90 372V164L73 192C71 196 67 198 62 196L13 172C8 170 6 166 8 160L46 90C52 80 60 74 74 70Z";
- const lower=[[150,45],[168,108],[232,108],[250,45]],upper=[[150,45],[172,66],[228,66],[250,45]],back=[[150,45],[172,74],[228,74],[250,45]];
+ const lower=[[150,45],[168,108],[232,108],[250,45]];
+ const upper=[[150,45],[172,66],[228,66],[250,45]];
+ const back=[[150,45],[172,74],[228,74],[250,45]];
+
  const emblem=(x,y,w,h,r,fs)=>`<g opacity=".95"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#lg)"/><rect x="${r1(x+w*.06)}" y="${r1(y+h*.08)}" width="${r1(w*.88)}" height="${r1(h*.84)}" rx="${r1(r*.7)}" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="${w>80?2:1}"/><text x="${r1(x+w/2)}" y="${r1(y+h/2+fs*.36)}" font-size="${fs}" font-weight="800" text-anchor="middle" fill="#fff" font-family="Inter,Arial,sans-serif" letter-spacing="1">LOGO</text></g>`;
  const a=P.ancoras[f?"peito":"costas"],bx=ancBox(a,SVG_BOX),cx=r1(bx.x+bx.w/2),cy=r1(bx.y+bx.h/2);
  const lg=!logo?"":`<g transform="rotate(${a.rot||0} ${cx} ${cy})${mx?" matrix(1 0 -.02 1 0 2)":""}">`+(useUp?`<image href="${LOGO}" x="${bx.x}" y="${bx.y}" width="${bx.w}" height="${bx.h}" preserveAspectRatio="xMidYMid meet"/>`:emblem(bx.x,bx.y,bx.w,bx.h,f?6:10,f?12:27))+"</g>";
+
+ /* abertura do pescoço (interior mais escuro) — só na frente */
  const nk=pd(upper)+"C232 108 168 108 150 45Z";
- const neckhole=f?`<path d="${nk}" fill="#000" opacity="${neckOp}"/>`:"";
- const cc=pd(f?lower:back),cw=f?15:13;
- /* gola: mesma cor, borda escura fina + rim claro */
- const col=`<path d="${cc}" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="${cw+4}" stroke-linecap="round"/>`
-  +`<path d="${cc}" fill="none" stroke="${shCol}" stroke-width="${cw}" stroke-linecap="round"/>`
-  +`<path d="${cc}" fill="none" stroke="${hex}" stroke-width="${cw-5}" stroke-linecap="round"/>`
-  +`<path d="${cc}" fill="none" stroke="#fff" stroke-opacity=".20" stroke-width="1" stroke-linecap="round" transform="translate(0 -2)"/>`;
+ const neckhole=f?`<path d="${nk}" fill="${neckFill}"/>`:"";
+ /* gola: 1 traço (contorno) + 1 traço interno (cor da camisa) */
+ const cc=pd(f?lower:back),cw=f?16:14;
+ const col=`<path d="${cc}" fill="none" stroke="${outline}" stroke-width="${cw+2}" stroke-linecap="round"/><path d="${cc}" fill="none" stroke="${fill}" stroke-width="${cw-2}" stroke-linecap="round"/>`;
+ /* costura de barra: linha quase invisível */
  const sc=light?"#000":"#fff";
  const st=`<g fill="none" stroke="${sc}" stroke-linecap="round" stroke-opacity=".10" stroke-width="1"><path d="M95 378H305M381 163L333 186M19 163L67 186"/></g>`;
  const etq=f?"":`<rect x="185" y="76" width="30" height="14" rx="2" fill="#f0f0f0" opacity=".85"/>`;
- const defs=`<defs>
-  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-   <stop offset="0" stop-color="#9333ea"/><stop offset="1" stop-color="#ec4899"/>
-  </linearGradient>
-  <linearGradient id="cyl" x1="0" y1="0" x2="1" y2="0">
-   <stop offset="0" stop-color="${shCol}" stop-opacity="${shOp}"/>
-   <stop offset="0.12" stop-color="${midCol}" stop-opacity="${midOp}"/>
-   <stop offset="0.30" stop-color="${hlCol}" stop-opacity="${hlOp*.4}"/>
-   <stop offset="0.50" stop-color="${hlCol}" stop-opacity="${hlOp}"/>
-   <stop offset="0.70" stop-color="${hlCol}" stop-opacity="${hlOp*.4}"/>
-   <stop offset="0.88" stop-color="${midCol}" stop-opacity="${midOp}"/>
-   <stop offset="1" stop-color="${shCol}" stop-opacity="${shOp}"/>
-  </linearGradient>
-  <linearGradient id="vtc" x1="0" y1="0" x2="0" y2="1">
-   <stop offset="0" stop-color="${shCol}" stop-opacity="0"/>
-   <stop offset="0.75" stop-color="${shCol}" stop-opacity="0"/>
-   <stop offset="1" stop-color="${shCol}" stop-opacity="${shOp*.35}"/>
-  </linearGradient>
-  <radialGradient id="ao" cx="50%" cy="50%" r="50%">
-   <stop offset="0" stop-color="${aoCol}" stop-opacity="${aoOp}"/>
-   <stop offset="1" stop-color="${aoCol}" stop-opacity="0"/>
-  </radialGradient>
-  <filter id="bm" x="-20%" y="-150%" width="140%" height="400%"><feGaussianBlur stdDeviation="6"/></filter>
-  <clipPath id="c"><path d="${body}"/></clipPath></defs>`;
- /* pequenas sombras nas axilas e sob a gola — não mancham o meio */
- const ao=`<ellipse cx="106" cy="205" rx="26" ry="55" fill="url(#ao)"/><ellipse cx="294" cy="205" rx="26" ry="55" fill="url(#ao)"/><ellipse cx="200" cy="70" rx="40" ry="12" fill="url(#ao)"/>`;
- const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420">${defs}<ellipse cx="200" cy="398" rx="150" ry="7" fill="#000" opacity="${dk?.45:.22}" filter="url(#bm)"/><path d="${body}" fill="${hex}"/><g clip-path="url(#c)">${neckhole}<rect width="400" height="420" fill="url(#cyl)"/><rect width="400" height="420" fill="url(#vtc)"/>${ao}</g><path d="${body}" fill="none" stroke="${shCol}" stroke-opacity=".35" stroke-width="1.2"/>${col}${st}${etq}${lg}</svg>`;
+
+ const defs=`<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9333ea"/><stop offset="1" stop-color="#ec4899"/></linearGradient><filter id="bm" x="-20%" y="-150%" width="140%" height="400%"><feGaussianBlur stdDeviation="6"/></filter></defs>`;
+
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420">${defs}<ellipse cx="200" cy="398" rx="150" ry="7" fill="#000" opacity="${shadowOp}" filter="url(#bm)"/><path d="${body}" fill="${fill}"/><path d="${body}" fill="none" stroke="${outline}" stroke-opacity=".7" stroke-width="${outlineW}"/>${neckhole}${col}${st}${etq}${lg}</svg>`;
  const uri="data:image/svg+xml,"+encodeURIComponent(svg);
  if(!useUp){SVG_CACHE.set(key,uri);if(SVG_CACHE.size>20)SVG_CACHE.delete(SVG_CACHE.keys().next().value)}
  return uri}
