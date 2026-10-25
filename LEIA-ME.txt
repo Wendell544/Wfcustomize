@@ -1,0 +1,28 @@
+WFCUSTOM — SITE COM VISUALIZADOR 3D INTEGRADO
+
+Arquivos incluídos:
+- index.html
+- js/config.js
+- js/app.js
+- js/3d-viewer.js (novo visualizador 3D)
+- css/style.css
+
+Como testar localmente:
+1. Extraia todos os arquivos mantendo as pastas.
+2. Abra a pasta no VS Code.
+3. Use a extensão Live Server (recomendado) e clique em Go Live.
+   Alternativa: execute `python -m http.server 8000` nesta pasta e acesse http://localhost:8000.
+
+Como publicar:
+Envie o conteúdo da pasta para a raiz do site/hospedagem, mantendo os caminhos js/ e css/.
+O visualizador usa Three.js por CDN, portanto o navegador precisa de internet.
+
+O que foi integrado:
+- Nova seção “Veja sua camiseta em 3D” na página principal.
+- Rotação com mouse/toque e zoom.
+- Botões Frente, Costas e Vista inicial.
+- Alternância preta/branca, sincronizada com a cor escolhida no configurador de pedido.
+- O restante do site, carrinho, personalização e checkout foi preservado dos arquivos enviados.
+
+Importante:
+O visualizador é um mockup 3D estilizado, não um arquivo de produção têxtil nem uma simulação física exata do tecido. O site não foi publicado na hospedagem; este pacote contém os arquivos completos atualizados para você enviar.
