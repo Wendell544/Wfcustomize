@@ -1,7 +1,7 @@
 /* ===== CONFIG ===== */
 const CONFIG={nome:"WFCUSTOM",whats:"5583999667578",instagram:"wfcustomm" /* usuário do Instagram, sem @ */,frete:null /* null = "Frete a combinar"; ou número, ex.: 25 */};
 const PRODUTO={
- id:"CAM-001",nome:"Camiseta básica 100% algodão",min:30,
+ id:"CAM-001",nome:"Camiseta básica 100% algodão",min:20,
  tamanhos:["P","M","G"],generos:["Masculina","Feminina"],
  /* preço da camiseta em cada personalização (R$ por peça) */
  personalizacoes:[
@@ -27,7 +27,7 @@ const MEDIDAS={
 };
 
 /* Desconto por volume: sobre o total do pedido (não por linha). Confirme os percentuais antes de publicar. */
-PRODUTO.descontos=[{min:30,pct:0},{min:50,pct:5},{min:100,pct:10},{min:200,pct:15}];
+PRODUTO.descontos=[{min:20,pct:0},{min:50,pct:5},{min:100,pct:10},{min:200,pct:15}];
 /* Depoimentos reais: preencha quando tiver. Lista vazia = a seção não aparece. */
 const DEPOIMENTOS=[];
 /* Logo sobre a camiseta (foto ou ilustração): âncoras anatômicas.
