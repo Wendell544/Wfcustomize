@@ -49,9 +49,21 @@ SVG e PNG/WebP com transparência entram direto. JPEG, WebP e PNG opaco passam p
 - Trocar Preta e Branca, tema claro e escuro, e conferir carrinho, checkout e mensagem do WhatsApp.
 - Lighthouse (Performance, Acessibilidade) e Memory (50 uploads seguidos).
 
-## COMO COLOCAR SUAS FOTOS REAIS (novo)
+## AVISO: como trocar as fotos
 Abra `js/config.js` e preencha:
-1. `heroFoto:` foto grande do topo. Ex.: `heroFoto:"img/hero.jpg"`
-2. `fotos:[...]` galeria "Fotos reais" (a seção aparece sozinha quando tem foto). Ex.: `fotos:["img/foto1.jpg","img/foto2.jpg"]`
+1. `heroFoto:"img/hero.jpg"` – foto grande do topo. Vazio = ilustração da camiseta.
+2. `fotos:["img/foto-01.jpg","img/foto-02.jpg","img/foto-03.jpg"]` – galeria "Fotos reais". A seção aparece sozinha quando há pelo menos uma foto e cada foto amplia ao clicar.
 3. Em cada cor, `foto:` (frente) e `fotoCostas:` (costas). Ex.: `{nome:"Preta",hex:"#161616",foto:"img/preta-frente.jpg",fotoCostas:"img/preta-costas.jpg"}`
-Use arquivos da pasta `img/` (envie a pasta no GitHub) ou links diretos do ImgBB. Dica: fotos quadradas, fundo liso, até 400 KB.
+
+Crie a pasta `img/` ao lado do `index.html` e envie a pasta ao GitHub junto com `css/` e `js/` (ou use links diretos do ImgBB, `https://i.ibb.co/...`). Dica: fotos quadradas, fundo liso, até 400 KB. No GitHub Pages maiúsculas e minúsculas importam: `Foto-01.JPG` não é `foto-01.jpg`.
+
+## V10 – upgrade visual
+A lógica (carrinho, checkout, WhatsApp, medidas, upload de logo, rotas e reveal) não foi alterada.
+- Topo: grade sutil com máscara radial, orb rosa flutuante, "marca" em gradiente rosa→violeta, imagem com brilho pulsante e chips flutuando.
+- Faixa marquee logo abaixo do topo e seção `#stats` com contadores (500+, 98%, 24h, 100%). As duas vêm de `v10Band()` no `js/app.js`, chamada em `viewHome()` logo depois do topo.
+- Botões em gradiente com brilho deslizante, cards `.pc` com elevação e sombra violeta, borda animada no card em destaque, `.tag` e selo do carrinho em gradiente, botão do WhatsApp pulsando, lupa na galeria, cabeçalho em vidro escuro e rodapé em degradê.
+- Todo o CSS novo fica no bloco `/* ===== V10 ===== */` no fim de `css/style.css`. Com `prefers-reduced-motion` tudo para: a faixa vira texto estático e os contadores mostram o valor final.
+
+Para editar: textos da faixa em `V10_FAIXA` e números/rótulos em `V10_STATS` (bloco V10 do `js/app.js`). Os números de clientes, satisfação e prazo são exemplos: confirme que são verdadeiros antes de publicar.
+Para desfazer: apague o bloco V10 do CSS e do `app.js` e tire `${v10Band()}` de `viewHome()`.
+Se o navegador mostrar a versão antiga, use Ctrl+F5. O `?v=10` no `index.html` já força o carregamento novo.
