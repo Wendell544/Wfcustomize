@@ -8,11 +8,20 @@ const PRODUTO={
   {id:"nenhuma",nome:"Sem logo",desc:"Camiseta lisa",preco:22},
   {id:"peito",nome:"Logo no peito",desc:"Pequena, lado esquerdo da frente",preco:30},
   {id:"frente_costas",nome:"Frente e costas",desc:"Logo na frente e nas costas, juntas",preco:36}],
- /* galeria extra: links diretos (ex.: ImgBB). Clique na miniatura para ampliar. */
  /* FOTO PRINCIPAL do topo do site. Ex.: "img/hero.jpg" ou link do ImgBB. Vazio = ilustração. */
  heroFoto:"",
  /* GALERIA "Fotos reais": quantas quiser. Ex.: "img/foto1.jpg" ou "https://i.ibb.co/XXXX/foto1.jpg" */
  fotos:[],
+ /* ===== 4 DESTAQUES DO PRODUTO (logo abaixo do topo) =====
+    Cole o LINK DIRETO de cada foto (ImgBB, Imgur, GitHub, etc.).
+    Ex.: "https://i.ibb.co/abcd1234/algodao.jpg"
+    Se "foto" ficar vazio, aparece um placeholder elegante com o ícone de camiseta.
+    Você pode trocar "titulo" e "texto" livremente. */
+ destaques:[
+  {foto:"",titulo:"Algodão 100% penteado",texto:"Toque macio, caimento reto e costura reforçada. A camiseta que seu cliente veste todo dia sem perder a forma."},
+  {foto:"",titulo:"18 cores no catálogo",texto:"Do básico preto e branco ao verde militar. Combine cores, tamanhos e modelos no mesmo pedido sem complicação."},
+  {foto:"",titulo:"Sua logo, do seu jeito",texto:"Peito ou frente e costas. Veja a prévia em tempo real aqui no site e envie o arquivo original pelo WhatsApp."},
+  {foto:"",titulo:"Atacado sem enrolação",texto:"Mínimo de 15 peças com desconto progressivo. Ideal para uniformes, eventos, brindes e marcas próprias."}],
  /* "foto": link direto da foto real da cor; quando preenchido, substitui a ilustração */
  cores:[
   {nome:"Preta",hex:"#161616",foto:"",fotoCostas:""},{nome:"Branca",hex:"#f7f7f7",foto:"",fotoCostas:""},{nome:"Off-white",hex:"#efe8d6",foto:"",fotoCostas:""},{nome:"Bege",hex:"#cdb99a",foto:"",fotoCostas:""},

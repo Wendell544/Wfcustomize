@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"WFCUSTOM","sameAs":["https://www.instagram.com/wfcustomm/"],"contactPoint":{"@type":"ContactPoint","telephone":"+55-83-99966-7578","contactType":"sales","availableLanguage":"pt-BR"}},{"@type":"Product","name":"Camiseta básica 100% algodão","description":"Camiseta básica 100% algodão no atacado, em 18 cores, com opção de logo.","brand":{"@type":"Brand","name":"WFCUSTOM"},"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":"22.00","highPrice":"36.00","offerCount":"3","availability":"https://schema.org/InStock"}}]}</script>
-<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/style.css?v=11">
 </head>
 <body>
 <header><div class="w hd">
@@ -30,7 +30,7 @@
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Foto ampliada"><button data-act="lbx" aria-label="Fechar">×</button><img id="lbi" alt=""></div>
 
-<script src="js/config.js?v=10"></script>
-<script src="js/app.js?v=10"></script>
+<script src="js/config.js?v=11"></script>
+<script src="js/app.js?v=11"></script>
 </body>
 </html>

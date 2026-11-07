@@ -8,7 +8,6 @@
 html{scroll-padding-top:calc(var(--hdr) + 16px);-webkit-text-size-adjust:100%}
 html.lock{overflow:hidden}
 body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--fs-base)/1.55 var(--f-text);-webkit-font-smoothing:antialiased}
-/* CORREÇÃO: overflow-x:hidden quebra position:sticky no iOS. clip não quebra. */
 body{overflow-x:hidden}
 @supports (overflow-x: clip){body{overflow-x:clip}}
 @media(max-width:899px){body.hasbar{padding-bottom:72px}}
@@ -30,7 +29,7 @@ section{padding:var(--s9) 0}
 @media(max-width:767px){section{padding:var(--s8) 0}}
 .nojs{padding:var(--s6);text-align:center;color:var(--fg-mut)}
 
-/* 3. HEADER — fixo no topo, fundo SÓLIDO para não "sumir" ao rolar */
+/* 3. HEADER */
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;height:var(--hdr);background:var(--bg);border-bottom:1px solid var(--bd);box-shadow:0 1px 0 rgba(0,0,0,.04)}
 .hd{height:100%;display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
 .brand{display:inline-flex;align-items:center;gap:var(--s2);font-family:var(--f-display);font-weight:800;font-size:17px;letter-spacing:-.01em}
@@ -73,7 +72,7 @@ nav a[data-nav="carrinho"]{padding:0 var(--s4);border:1px solid var(--bd-strong)
 .facts b{display:block;font-family:var(--f-display);font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .facts span{font-size:var(--fs-sm);color:var(--fg-mut)}
 
-/* 6. SECTIONS: prices, measurements */
+/* 6. SECTIONS */
 .sechd{margin-bottom:var(--s6)}
 .sechd p{margin-top:var(--s2);color:var(--fg-mut);max-width:56ch}
 .kicker{margin-bottom:var(--s2);font-size:var(--fs-xs);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
@@ -223,7 +222,7 @@ html{scroll-behavior:auto}
 .btn,.pc,.fab,.seg button,.opt label,.sw button,.drawer,#scrim,#toast,.bar i,.main-img-wrap img{transition:none;animation:none}
 }
 
-/* ===== V5: desconto, logo, como funciona, FAQ, depoimentos ===== */
+/* ===== V5 ===== */
 .inc{margin:var(--s3) 0 0;padding:var(--s2) var(--s3);border-radius:var(--r-s);background:var(--surface2);font-size:.9rem;color:var(--mut)}
 .tot.ok b{color:var(--ok)}
 .logo-up{margin-top:var(--s3);padding:var(--s3);border:1px dashed var(--bd);border-radius:var(--r-m)}
@@ -236,11 +235,12 @@ html{scroll-behavior:auto}
 .faq summary{cursor:pointer;min-height:52px;display:flex;align-items:center;font-weight:700}.faq p{margin:0 0 var(--s4);color:var(--mut)}
 .depo{display:grid;gap:var(--s4);grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .depo article{background:var(--surface);border:1px solid var(--bd);border-radius:var(--r-l);padding:var(--s5)}
-/* ===== V6: fotos reais e logo sobre a foto ===== */
+
+/* ===== V6 ===== */
 .ph{position:relative}
 .main-img-wrap img.logo-overlay{position:absolute;left:auto;top:auto;width:auto;max-width:none;height:auto;aspect-ratio:auto;object-fit:contain;background:none;border-radius:0;animation:none;pointer-events:none}
 
-/* ===== V7: zero zoom e zero salto no upload ===== */
+/* ===== V7 ===== */
 input,select,textarea{font-size:16px}
 input[type=file]{touch-action:manipulation;font-size:16px}
 input[type=file]:focus{outline-offset:0}
@@ -255,7 +255,7 @@ body.is-processing .logo-up::after{content:"";position:absolute;top:var(--s3);ri
 @keyframes wfspin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){body.is-processing .logo-up::after{animation:none}.main-img-wrap img.logo-overlay{transition:none}}
 
-/* ===== V8: sem zoom, botão de logo colorido, conteúdo em 95% ===== */
+/* ===== V8 ===== */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body,a,button,label,summary,input,select,textarea,[data-act]{touch-action:manipulation}
 .btn:active,.seg button:active,.fab:hover{transform:none}
@@ -267,7 +267,8 @@ html,body,a,button,label,summary,input,select,textarea,[data-act]{touch-action:m
 .lu-row input[type=file]::file-selector-button{margin-right:var(--s3);min-height:44px;padding:0 var(--s4);border:0;border-radius:var(--r-pill);background:#c2410c;color:#fff;font:700 16px/1 var(--f-text);cursor:pointer}
 .lu-row input[type=file]::-webkit-file-upload-button{margin-right:var(--s3);min-height:44px;padding:0 var(--s4);border:0;border-radius:var(--r-pill);background:#c2410c;color:#fff;font:700 16px/1 var(--f-text);cursor:pointer}
 .lu-row input[type=file]::file-selector-button:hover{background:#9a3412}
-/* ===== V9: visual renovado ===== */
+
+/* ===== V9 ===== */
 :root{--r-s:10px;--r-m:14px;--r-l:20px;--surface2:var(--surface-2);--mut:var(--fg-mut);--ink:#120b24}
 header{background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px)}
 .hero{position:relative;overflow:hidden;padding:clamp(40px,7vw,88px) 0 0;background:radial-gradient(900px 500px at 85% 0,rgba(236,72,153,.38),transparent 60%),radial-gradient(700px 500px at 0 100%,rgba(147,51,234,.45),transparent 60%),var(--ink);color:#fff}
@@ -302,12 +303,9 @@ header{background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-
 .how li{padding:var(--s5);border:1px solid var(--bd);border-radius:var(--r-lg);background:var(--surface)}
 @media (prefers-reduced-motion:reduce){.gi img,.pc{transition:none}.hero-art{transform:none}}
 
-/* ===== V10: hero cinematográfico, marquee, estatísticas e cards premium ===== */
-/* Para desfazer: apague este bloco, o bloco V10 do js/app.js e a chamada v10Band() em viewHome(). */
+/* ===== V10 ===== */
 @property --v10a{syntax:"<angle>";inherits:false;initial-value:0deg}
 .v10-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-
-/* 1. Hero cinematográfico: grade com máscara radial, orb flutuante, H1 em gradiente, brilho na imagem */
 .hero>.w{position:relative;z-index:1}
 .hero::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 70% 65% at 50% 38%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse 70% 65% at 50% 38%,#000 15%,transparent 75%)}
 .hero::after{content:"";position:absolute;z-index:0;pointer-events:none;top:-14%;right:-6%;width:clamp(320px,44vw,640px);aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(244,114,182,.8),rgba(236,72,153,.3) 48%,transparent 70%);filter:blur(38px);opacity:.7;animation:floaty 18s ease-in-out infinite}
@@ -316,8 +314,6 @@ header{background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-
 @supports ((-webkit-background-clip:text) or (background-clip:text)){.hero h1 em{background:linear-gradient(90deg,#f472b6,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}}
 .hero-art{animation:heroGlow 4.5s ease-in-out infinite}
 @keyframes heroGlow{0%,100%{box-shadow:0 40px 80px rgba(0,0,0,.45),0 0 44px rgba(236,72,153,.28),0 0 96px rgba(147,51,234,.22)}50%{box-shadow:0 40px 80px rgba(0,0,0,.45),0 0 72px rgba(236,72,153,.55),0 0 150px rgba(147,51,234,.42)}}
-
-/* 5. Botões .btn:not(.ghost): gradiente animado, brilho deslizante e glow no hover */
 .btn:not(.ghost){position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(135deg,#ec4899,#9333ea);background-size:200% 200%;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.28);animation:btnGrad 4s ease infinite;transition:transform var(--d-micro) var(--ease-out),box-shadow var(--d-std) var(--ease-out),opacity var(--d-micro)}
 .btn:not(.ghost)::before{content:"";position:absolute;z-index:-1;top:0;bottom:0;left:0;width:45%;pointer-events:none;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:translateX(-160%) skewX(-20deg);transition:transform .7s var(--ease-out)}
 .btn:not(.ghost):hover{box-shadow:0 12px 34px -6px rgba(236,72,153,.6),0 0 22px rgba(147,51,234,.45)}
@@ -325,8 +321,6 @@ header{background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-
 .btn[disabled]:not(.ghost),.btn[aria-disabled="true"]:not(.ghost){animation:none;box-shadow:none}
 .btn[disabled]::before,.btn[aria-disabled="true"]::before{display:none}
 @keyframes btnGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-
-/* 2. Faixa marquee (4 cópias do conteúdo: a 1ª é lida por leitores de tela, as outras são aria-hidden) */
 .marq{position:relative;overflow:hidden;padding:14px 0;background:linear-gradient(90deg,#ec4899,#9333ea);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.18)}
 .marq-in{display:flex;width:max-content;animation:marq 32s linear infinite;will-change:transform}
 .marq:hover .marq-in,.marq:focus-within .marq-in{animation-play-state:paused}
@@ -334,8 +328,6 @@ header{background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-
 .marq-t li{flex:none;display:flex;align-items:center;padding:0 var(--s5);font:800 14px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
 .marq-t li::after{content:"·";content:"·" / "";margin-left:var(--s5);font-size:20px;opacity:.7}
 @keyframes marq{to{transform:translateX(-25%)}}
-
-/* 3. Estatísticas (#stats): números em gradiente, divisores verticais */
 section#stats{padding:clamp(44px,6vw,80px) 0;background:var(--bg)}
 .st-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:start}
 .st{position:relative;padding:0 var(--s4);text-align:center}
@@ -343,21 +335,15 @@ section#stats{padding:clamp(44px,6vw,80px) 0;background:var(--bg)}
 .st .num{display:block;font-family:var(--f-display);font-size:clamp(40px,5.2vw,68px);font-weight:800;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--accent)}
 @supports ((-webkit-background-clip:text) or (background-clip:text)){.st .num{background:linear-gradient(135deg,#ec4899,#9333ea);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}}
 .st .lb{display:block;margin-top:var(--s2);font-size:var(--fs-sm);font-weight:500;color:var(--fg-mut)}
-
-/* 4. Cards premium .pc */
 .pc:hover{transform:perspective(900px) translateY(-8px) rotateX(1deg);border-color:rgba(147,51,234,.45);box-shadow:0 26px 54px -12px rgba(147,51,234,.38),0 8px 20px rgba(236,72,153,.16)}
 .pc.hl{border-color:transparent;background:radial-gradient(120% 90% at 100% 0,rgba(236,72,153,.2),transparent 55%),radial-gradient(110% 90% at 0 100%,rgba(147,51,234,.22),transparent 55%),var(--surface)}
 .pc.hl::before{content:"";position:absolute;inset:-1px;padding:2px;border-radius:inherit;background:conic-gradient(from var(--v10a),#ec4899,#9333ea,#ec4899);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;pointer-events:none;animation:hlSpin 6s linear infinite}
 @keyframes hlSpin{to{--v10a:360deg}}
 .tag{z-index:1;padding:4px 12px;border-radius:var(--r-pill);background:linear-gradient(135deg,#ec4899,#9333ea);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25)}
-
-/* 6. Galeria .gi */
 .gi{position:relative;transition:box-shadow var(--d-std) var(--ease-out),transform var(--d-std) var(--ease-out)}
 .gi:hover,.gi:focus-visible{transform:translateY(-4px)}
 .gi::after{content:"🔍";content:"🔍" / "";position:absolute;inset:0;display:grid;place-items:center;font-size:34px;background:rgba(18,11,36,.38);opacity:0;pointer-events:none;transition:opacity var(--d-std) var(--ease-out)}
 .gi:hover::after,.gi:focus-visible::after{opacity:1}
-
-/* 7. Header em vidro escuro (texto sempre claro, em qualquer tema) */
 header{background:rgba(0,0,0,.6);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px);border-bottom:1px solid rgba(255,255,255,.1);box-shadow:none;color:#fff}
 header .brand b{color:#fff}
 header .brand span{color:rgba(255,255,255,.82)}
@@ -366,28 +352,16 @@ header nav a:hover{color:#fff}
 header nav a[aria-current="page"]{color:#fff;box-shadow:inset 0 -2px 0 #f472b6}
 header nav a[data-nav="carrinho"]{color:#fff;border-color:rgba(255,255,255,.35)}
 header .menu-btn:hover,header nav a[data-nav="carrinho"]:hover{background:rgba(255,255,255,.12)}
-
-/* 8. FAB do WhatsApp pulsante */
 .fab{animation:fabPulse 2.5s ease-out infinite}
 @keyframes fabPulse{0%{box-shadow:0 0 0 0 rgba(18,140,74,.55),var(--sh-2)}70%,100%{box-shadow:0 0 0 18px rgba(18,140,74,0),var(--sh-2)}}
-
-/* 9. Badge do carrinho */
 .badge{background:linear-gradient(135deg,#ec4899,#9333ea);color:#fff;animation:badgePulse 2.2s ease-in-out infinite}
 @keyframes badgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(236,72,153,.55)}50%{transform:scale(1.1);box-shadow:0 0 0 6px rgba(236,72,153,0)}}
-
-/* 10. Chips do hero */
 .chip{animation:chipFloat 5s ease-in-out infinite}
 .chip.c2{animation-duration:6.2s;animation-delay:-2.4s}
 @keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-
-/* 11. Footer: degradê do fundo da página até o roxo escuro (rampa de 120px mantém o texto legível nos dois temas) */
 footer{padding-top:calc(var(--s9) + var(--s2));background:linear-gradient(180deg,var(--bg) 0,var(--ink) 120px,var(--ink) 100%);border-top-color:transparent;color:rgba(255,255,255,.72)}
 footer a:hover,#fi b{color:#fff}
-
-/* 12. Kicker em pílula */
 .kicker{padding:4px 14px;border:1px solid rgba(147,51,234,.4);background:linear-gradient(135deg,rgba(236,72,153,.12),rgba(147,51,234,.14));color:var(--accent)}
-
-/* 13. Mobile */
 @media(max-width:899px){
 .hero::before{background-size:32px 32px}
 .hero::after{width:320px;top:-6%;right:-26%;filter:blur(30px);opacity:.6}
@@ -402,8 +376,6 @@ section#stats{padding:44px 0}
 .st+.st::before{display:none}
 .st .num{font-size:clamp(36px,11vw,52px)}
 }
-
-/* 14. Movimento reduzido: desliga tudo o que o V10 anima */
 @media (prefers-reduced-motion:reduce){
 .hero::after,.hero-art,.btn:not(.ghost),.pc.hl::before,.fab,.badge,.chip,.marq-in{animation:none!important}
 .btn:not(.ghost)::before{display:none}
@@ -415,4 +387,239 @@ section#stats{padding:44px 0}
 .marq-t[aria-hidden="true"]{display:none}
 .marq-t{flex-wrap:wrap;justify-content:center}
 .marq-t li{padding:6px var(--s4)}
+}
+
+/* ===== V11: 4 imagens do produto + configurador renovado ===== */
+
+/* 1. DESTAQUES — 4 cards de imagem+texto logo abaixo do topo */
+#destaques{
+  padding:clamp(48px,6vw,88px) 0;
+  background:var(--bg-sub);
+  border-top:1px solid var(--bd);
+  border-bottom:1px solid var(--bd);
+}
+.destaques-grid{
+  display:grid;
+  gap:var(--s5);
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.dst-card{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  background:var(--surface);
+  border:1px solid var(--bd);
+  border-radius:var(--r-xl);
+  overflow:hidden;
+  transition:transform var(--d-std) var(--ease-out),
+             box-shadow var(--d-std) var(--ease-out),
+             border-color var(--d-std);
+}
+.dst-card:hover{
+  transform:translateY(-6px);
+  border-color:rgba(147,51,234,.4);
+  box-shadow:0 24px 54px -16px rgba(147,51,234,.34),0 8px 20px rgba(236,72,153,.12);
+}
+.dst-img{
+  position:relative;
+  aspect-ratio:4/5;
+  overflow:hidden;
+  background:linear-gradient(135deg,var(--surface-2),var(--accent-soft));
+}
+.dst-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .8s var(--ease-out);
+}
+.dst-card:hover .dst-img img{transform:scale(1.05)}
+.dst-img::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.28));
+}
+.dst-ph{
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  color:var(--fg-subtle);
+  background:
+    radial-gradient(circle at 50% 40%,var(--accent-soft),transparent 60%),
+    linear-gradient(135deg,var(--surface-2),var(--surface));
+}
+.dst-ph svg{width:56px;height:56px;opacity:.55}
+.dst-body{
+  padding:var(--s5);
+  display:flex;
+  flex-direction:column;
+  gap:var(--s2);
+  flex:1;
+}
+.dst-num{
+  display:inline-block;
+  font:800 11px/1 var(--f-display);
+  letter-spacing:.16em;
+  color:var(--accent);
+  margin-bottom:var(--s1);
+}
+.dst-body h3{
+  font-size:var(--fs-lg);
+  line-height:1.2;
+  margin:0;
+}
+.dst-body p{
+  color:var(--fg-mut);
+  font-size:var(--fs-sm);
+  line-height:1.55;
+  margin:0;
+}
+@media(max-width:1100px){
+  .destaques-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .destaques-grid{grid-template-columns:1fr;gap:var(--s3)}
+  .dst-img{aspect-ratio:16/9}
+  .dst-body{padding:var(--s4)}
+}
+
+/* 2. CONFIGURADOR RENOVADO — prévia com "ao vivo" e painel com preço em destaque */
+.cfg .stage{position:relative;padding:var(--s4) var(--s5) var(--s5)}
+.pv-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--s3);
+  margin-bottom:var(--s3);
+  flex-wrap:wrap;
+}
+.pv-live{
+  display:inline-flex;
+  align-items:center;
+  gap:var(--s2);
+  padding:6px 12px;
+  border-radius:var(--r-pill);
+  background:rgba(22,163,74,.14);
+  color:var(--ok);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.pv-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--ok);
+  box-shadow:0 0 0 0 rgba(22,163,74,.55);
+  animation:pvPulse 1.8s ease-out infinite;
+}
+@keyframes pvPulse{
+  0%{box-shadow:0 0 0 0 rgba(22,163,74,.55)}
+  70%,100%{box-shadow:0 0 0 9px rgba(22,163,74,0)}
+}
+.pv-tag{
+  padding:6px 14px;
+  border-radius:var(--r-pill);
+  background:var(--surface);
+  border:1px solid var(--bd);
+  font-size:13px;
+  font-weight:600;
+  color:var(--fg);
+  font-variant-numeric:tabular-nums;
+}
+.pv-foot{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:var(--s2) var(--s3);
+  margin-top:var(--s4);
+  padding-top:var(--s3);
+  border-top:1px dashed var(--bd);
+  font-size:var(--fs-sm);
+  font-weight:500;
+  color:var(--fg-mut);
+  text-align:center;
+}
+.pv-foot span:nth-child(even){color:var(--fg-subtle);font-weight:400}
+
+.panel-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:var(--s4);
+  margin-bottom:var(--s5);
+  padding-bottom:var(--s5);
+  border-bottom:1px solid var(--bd);
+}
+.panel-title{display:flex;flex-direction:column;gap:var(--s2);min-width:0}
+.panel-kick{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+.panel-title h2{font-size:var(--fs-xl);margin:0;line-height:1.15}
+.panel-price{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:2px;
+  text-align:right;
+  flex:none;
+}
+.panel-price b{
+  font:800 var(--fs-2xl) var(--f-display);
+  letter-spacing:-.02em;
+  color:var(--accent);
+  font-variant-numeric:tabular-nums;
+  line-height:1;
+}
+.panel-price small{
+  font-size:11px;
+  color:var(--fg-mut);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
+/* Bloco de compra como card premium */
+.buy{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--s4);
+  margin-top:var(--s5);
+  padding:var(--s4) var(--s5);
+  border-radius:var(--r-lg);
+  background:linear-gradient(135deg,rgba(147,51,234,.06),rgba(236,72,153,.06));
+  border:1px solid var(--bd);
+  border-top:1px solid var(--bd);
+}
+.buy .p{font-size:clamp(26px,3.2vw,34px)}
+.buy .btn{min-height:52px;padding:0 var(--s6);font-size:15px}
+@media(max-width:520px){
+  .buy{flex-direction:column-reverse;text-align:center}
+  .buy .p small{text-align:center}
+  .buy .btn{width:100%}
+}
+
+/* Feedback visual do botão Adicionar (a classe .bounce é aplicada via JS) */
+.bounce{animation:btnBounce .42s var(--ease-out)}
+@keyframes btnBounce{
+  0%{transform:scale(1)}
+  40%{transform:scale(.94)}
+  70%{transform:scale(1.03)}
+  100%{transform:scale(1)}
+}
+
+/* 3. Movimento reduzido para os novos elementos */
+@media (prefers-reduced-motion:reduce){
+  .pv-dot{animation:none}
+  .dst-card,.dst-img img,.buy,.bounce{transition:none;animation:none}
+  .dst-card:hover{transform:none}
+  .dst-card:hover .dst-img img{transform:none}
 }
